@@ -74,8 +74,7 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
     }
   }, [isAuthenticated]);
 
-
-  if (status === 'loading'|| isAuthenticated || isSignedIn) {
+  if (status === 'loading' || isAuthenticated || isSignedIn) {
     return <Loader />;
   }
 
