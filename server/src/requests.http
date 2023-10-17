@@ -1,0 +1,57 @@
+### login user
+GET http://localhost:5000/login
+
+### stock search
+GET http://localhost:5000/api/stockdata/search
+
+###
+GET http://localhost:5000/api/stockdata/AAPL
+
+###
+GET http://localhost:5000/intraday/TATACHEM
+Cookie: jwtoken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NTEzMTY1NmQ1YmIyZmRlOGI4OGE4NTIiLCJlbWFpbCI6Imlkb250a25vdzAxMTAxMkBnbWFpbC5jb20iLCJpYXQiOjE2OTY0OTEzMTQsImV4cCI6MTY5NjUzNDUxNH0.i_bjw3Ma1yBDygDSZVq_tm5ykxgKYQHeZhwirc63smI
+
+### login user
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+    "email": "hello@hello.com",
+    "password": "1 2 3 4 5 6"
+}
+
+### signup user
+POST http://localhost:5000/signup
+Content-Type: application/json
+
+{
+    "firstName": "John Doe",
+    "lastName": "hello@hello.com",
+    "email": "hello@hello.com",
+    "password": "1 2 3 4 5 6",
+    "confirmPassword": "1 2 3 4 5 6"
+}
+
+### Find a particular user with id
+GET http://localhost:5000/user
+
+### Find all users with given email
+POST http://localhost:5000/api/signin
+Content-Type: application/json
+
+{
+    "email": "b@a.com",
+    "password": "ab1111111111cd"
+}
+
+### Delete a user given id 
+DELETE http://localhost:3000/auth/
+
+### Update user
+PATCH http://localhost:3000/auth/222
+Content-Type: application/json
+
+{
+    "email": "b@a.com",
+    "password": "abcd"
+}

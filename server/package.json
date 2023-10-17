@@ -1,0 +1,46 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon src/server.ts",
+    "build": "tsc",
+    "preinstall": "npx only-allow yarn"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/csv-parse": "^1.2.2",
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/ws": "^8.5.6",
+    "axios": "^1.4.0",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.0.0",
+    "ioredis": "^5.3.2",
+    "jsonwebtoken": "^9.0.1",
+    "mongoose": "^7.4.2",
+    "nodemailer": "^6.9.4",
+    "protobufjs": "^7.2.5",
+    "socket.io": "^4.7.2",
+    "upstox-js-sdk": "^2.1.0",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/cookie-parser": "^1.4.3",
+    "@types/express": "^4.17.17",
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^20.6.2",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}
