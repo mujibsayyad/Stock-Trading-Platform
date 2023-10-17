@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, FC } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, FC } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 
 //* ************** Custom imports *************** *//
@@ -11,6 +11,7 @@ import {
   connectSocket,
   disconnectSocket,
 } from '@/lib/redux/slices/socketSlice';
+import Loader from '../components/Loader';
 
 //* ************** interface *************** *//
 export interface WithAuthProps {
@@ -24,6 +25,8 @@ const WithAuth = (
 ): FC<WithAuthProps> => {
   const Inner: FC<WithAuthProps> = (props: WithAuthProps) => {
     const router = useRouter();
+    const pathname = usePathname();
+    const [loading, setLoading] = useState(pathname.startsWith('/chart/'));
 
     const { isSignedIn, status } = useSelector((state: any) => state.auth);
     console.log('🚀 isSignedIn:', isSignedIn);
@@ -44,6 +47,7 @@ const WithAuth = (
         } else if (!isPublicPage) {
           router.push('/signin');
         }
+        setLoading(false);
       });
 
       // Clean up by disconnecting the socket when the component unmounts
@@ -56,8 +60,8 @@ const WithAuth = (
       };
     }, [dispatch, isPublicPage, isSignedIn]);
 
-    if (status === 'loading') {
-      return <div>Loading...</div>;
+    if (status === 'loading' || loading) {
+      return <Loader />;
     }
 
     return <Component {...props} isAuthenticated={isSignedIn} />;

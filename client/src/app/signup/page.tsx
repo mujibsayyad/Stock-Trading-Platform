@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 
 //* ************** Custom imports *************** *//
+import Loader from '../components/Loader';
 import { postData } from '../hooks/axiosapi';
 import { ReduxState } from '@/lib/redux/store';
 import validateUserData from '../hooks/validation';
@@ -65,7 +66,7 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const { firstName, lastName, email, password, confirmPassword } = userData;
 
   const router = useRouter();
-  const { isSignedIn } = useSelector((state: ReduxState) => state.auth);
+  const { isSignedIn, status } = useSelector((state: ReduxState) => state.auth);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -73,8 +74,9 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
     }
   }, [isAuthenticated]);
 
-  if (isAuthenticated || isSignedIn) {
-    return <div>Loading...</div>;
+
+  if (status === 'loading'|| isAuthenticated || isSignedIn) {
+    return <Loader />;
   }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

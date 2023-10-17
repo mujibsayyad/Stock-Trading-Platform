@@ -1,8 +1,9 @@
 import Image from 'next/image';
-import { useState, memo, FC } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useState, useEffect, memo, FC } from 'react';
 import { Grid, Typography, Button } from '@mui/material';
 
+import Loader from './Loader';
 // Flag Images
 import indiaFlag from '../../../public/flags/india-flag.png';
 
@@ -26,15 +27,27 @@ interface StockDataInterface {
 
 const StockGrid: FC<StockGridProps> = ({ stocks }) => {
   const [hovered, setHovered] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (loading && pathname.startsWith('/chart/')) {
+      setLoading(false); // Set loading to false when the chart route is loaded
+    }
+  }, [pathname, searchParams]);
 
   // Handle redirect to chart page
   const handleLaunchChartButton = async (data: StockDataInterface) => {
     console.log('launch chart data:', data);
     const { name, symbol } = data;
+    setLoading(true);
     router.push(`/chart/${symbol}/${name}`);
   };
+
+  if (loading) return <Loader />;
 
   return (
     <Grid

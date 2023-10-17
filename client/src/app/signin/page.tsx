@@ -17,6 +17,7 @@ import {
 import { Email, Password, ShowChart } from '@mui/icons-material';
 
 //* ************** Custom imports *************** *//
+import Loader from '../components/Loader';
 import { ReduxState } from '@/lib/redux/store';
 import { userLogin } from '@/lib/redux/slices/authSlice';
 import validateUserData from '../hooks/validation';
@@ -39,7 +40,7 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
 
   const router = useRouter();
   const dispatch = useDispatch<any>();
-  const { isSignedIn } = useSelector((state: ReduxState) => state.auth);
+  const { isSignedIn, status } = useSelector((state: ReduxState) => state.auth);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -47,8 +48,8 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
     }
   }, [isAuthenticated]);
 
-  if (isAuthenticated || isSignedIn) {
-    return <div>Loading...</div>;
+  if (status === 'loading' || isAuthenticated || isSignedIn) {
+    return <Loader />;
   }
 
   // Handle Signin with input validation
