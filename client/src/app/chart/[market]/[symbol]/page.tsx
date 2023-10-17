@@ -397,4 +397,4 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   );
 };
 
-export default WithAuth(StockData);
+export default WithAuth(StockData) as FC;

@@ -29,7 +29,7 @@ import {
 import { postData } from '../hooks/axiosapi';
 import { ReduxState } from '@/lib/redux/store';
 import validateUserData from '../hooks/validation';
-import withAuth, { WithAuthProps } from '../middleware/WithAuth';
+import WithAuth, { WithAuthProps } from '../middleware/WithAuth';
 import StockChartImg from '../../../public/signin/stock_chart.jpg';
 
 //* ************** types *************** *//
@@ -328,4 +328,4 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
   );
 };
 
-export default withAuth(Signup, true);
+export default WithAuth(Signup, true) as FC;

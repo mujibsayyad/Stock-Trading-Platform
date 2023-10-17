@@ -23,7 +23,6 @@ const Navbar: FC = () => {
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
 
   const { isSignedIn } = useSelector((state: any) => state.auth);
-  console.log('🚀 Im @:Navbar');
 
   useEffect(() => {
     const handleScroll = () => {

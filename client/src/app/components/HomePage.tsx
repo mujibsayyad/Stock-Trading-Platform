@@ -264,9 +264,9 @@ const HomePage: FC = () => {
               }}
             >
               Dive deep into the world of stocks and stay ahead with <br />
-              up-to-the-second market data. Our platform ensures you're always
-              informed, allowing you to make swift decisions backed by timely
-              and accurate information.
+              up-to-the-second market data. Our platform ensures you&apos;re
+              always informed, allowing you to make swift decisions backed by
+              timely and accurate information.
             </Typography>
           </Grid>
 
@@ -391,7 +391,7 @@ const HomePage: FC = () => {
           to the potential hidden gems in the small-cap universe, we provide
           comprehensive coverage of the Indian equities market. Stay updated,
           make informed decisions, and harness the potential of one of the
-          world's fastest-growing economies.
+          world&apos;s fastest-growing economies.
         </Typography>
       </Box>
     </Box>

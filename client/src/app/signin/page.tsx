@@ -240,4 +240,4 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
   );
 };
 
-export default WithAuth(SignIn, true);
+export default WithAuth(SignIn, true) as FC;
