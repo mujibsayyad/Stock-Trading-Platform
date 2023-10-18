@@ -97,11 +97,14 @@ const connectSocket = async (app: any) => {
 
       const instrument = await fetchInstrumentDetails(symbol);
       if (!instrument) {
-        throw new Error('No instrument found for the given symbol.');
+        const errorMsg = 'No instrument found for the given symbol.';
+
+        // Emit error message to the client
+        socket.emit('error', errorMsg);
+        return;
       }
 
       const instrumentKey = instrument.instrument_key;
-      console.log('🚀 socket.on ~ instrumentKey:', instrumentKey);
 
       try {
         const wsUrl = await getMarketFeedUrl();
@@ -120,23 +123,30 @@ const connectSocket = async (app: any) => {
 
         ws.send(Buffer.from(JSON.stringify(data)));
 
-        ws.on('message', (data: any) => {
+        // Handle WebSocket messages
+        const messageHandler = (data: any) => {
           const decodedData = decodeProfobuf(data);
           console.log('🚀 decodedData:', decodedData);
           socket.emit('symbolData', decodedData);
-        });
+        };
+        ws.on('message', messageHandler);
 
         // Handle WebSocket errors
-        ws.on('error', (err: Error) => {
+        const errorHandler = (err: Error) => {
           console.error('WebSocket Error:', err);
           socket.emit('error', 'WebSocket encountered an error.');
-        });
+        };
+        ws.on('error', errorHandler);
 
         // Handle WebSocket close events
-        ws.on('close', (code: number, reason: string) => {
-          console.log(`WebSocket closed. Code: ${code}, Reason: ${reason}`);
-          ws.removeAllListeners();
-        });
+        const closeHandler = (code: number, reason: string) => {
+          console.log(`🚀 WebSocket closed. Code: ${code}, Reason: ${reason}`);
+          ws.close();
+          ws.removeListener('message', messageHandler);
+          ws.removeListener('error', errorHandler);
+          ws.removeListener('close', closeHandler);
+        };
+        ws.on('close', closeHandler);
       } catch (error) {
         console.error('An error occurred:', error);
         socket.emit('error', 'Error retrieving data for the given symbol.');
@@ -153,8 +163,8 @@ const connectSocket = async (app: any) => {
       // If the WebSocket exists and it's open, close it.
       if (clientWs && clientWs.readyState === clientWs.OPEN) {
         console.log('Closing WebSocket...');
-        ws.close();
-        ws.removeAllListeners();
+        clientWs.close();
+        clientWs.removeAllListeners();
         console.log('Associated WebSocket closed.');
       }
 

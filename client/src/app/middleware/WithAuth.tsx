@@ -38,8 +38,10 @@ const WithAuth = (
         dispatch(validateUser(data));
 
         if (data?.isSignedIn) {
-          // Connect the socket when user signin
-          dispatch(connectSocket());
+          if (pathname.startsWith('/chart/')) {
+            // Connect the socket only for /chart page
+            socket.connect();
+          }
 
           if (isPublicPage) {
             router.push('/');
@@ -52,13 +54,15 @@ const WithAuth = (
 
       // Clean up by disconnecting the socket when the component unmounts
       return () => {
-        if (socket.connected) {
-          console.log('🚀 cleanup socket connected:');
-          socket.disconnect();
-          dispatch(disconnectSocket());
+        if (pathname.startsWith('/chart/')) {
+          if (socket.connected) {
+            console.log('🚀 withauth cleanup socket connected:');
+            socket.disconnect();
+            // dispatch(disconnectSocket());
+          }
         }
       };
-    }, [dispatch, isPublicPage, isSignedIn]);
+    }, [dispatch, isPublicPage, isSignedIn, router]);
 
     if (status === 'loading' || loading) {
       return <Loader />;
