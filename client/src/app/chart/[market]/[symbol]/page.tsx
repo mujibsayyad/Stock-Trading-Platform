@@ -8,8 +8,6 @@ import {
   ISeriesApi,
 } from 'lightweight-charts';
 import { Box, Typography, Grid } from '@mui/material';
-import { disconnectSocket } from '@/lib/redux/slices/socketSlice';
-import { useDispatch } from 'react-redux';
 
 //* ************** Custom imports *************** *//
 import { socket } from '@/app/middleware/socket';
@@ -77,8 +75,6 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
 
   const chartContainerRef = useRef(null);
   const pathname = useParams();
-
-  const dispatch = useDispatch<any>();
 
   // Search stock by url params (rtk api)
   const { data } = useGetStockDataQuery(pathname, {
@@ -187,7 +183,6 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
 
     socket.on('symbolData', (newData) => {
       if (newData && newData.type === 'live_feed') {
-        console.log('🚀 newData:', newData);
         // Extracting the dynamic stock key
         const stockKey = Object.keys(newData.feeds || {})[0];
 
