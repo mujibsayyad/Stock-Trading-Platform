@@ -41,10 +41,13 @@ const WithAuth = (
           if (pathname.startsWith('/chart/')) {
             // Connect the socket only for /chart page
             socket.connect();
+          } else {
+            socket.disconnect();
           }
 
           if (isPublicPage) {
             router.push('/');
+            socket.disconnect();
           }
         } else if (!isPublicPage) {
           router.push('/signin');
@@ -54,12 +57,8 @@ const WithAuth = (
 
       // Clean up by disconnecting the socket when the component unmounts
       return () => {
-        if (pathname.startsWith('/chart/')) {
-          if (socket.connected) {
-            console.log('🚀 withauth cleanup socket connected:');
-            socket.disconnect();
-            // dispatch(disconnectSocket());
-          }
+        if (!pathname.startsWith('/chart/') || isPublicPage) {
+          socket.disconnect();
         }
       };
     }, [dispatch, isPublicPage, isSignedIn, router]);
