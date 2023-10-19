@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef, FC } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import {
   createChart,
   ColorType,
@@ -74,10 +74,11 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [prevClose, setPrevClose] = useState<number>(0);
 
   const chartContainerRef = useRef(null);
-  const pathname = useParams();
+  const params = useParams();
+  const pathname = usePathname();
 
   // Search stock by url params (rtk api)
-  const { data } = useGetStockDataQuery(pathname, {
+  const { data } = useGetStockDataQuery(params, {
     skip: !isAuthenticated,
   });
 
@@ -179,7 +180,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
       chart?.timeScale().fitContent();
     }
 
-    socket.emit('selectSymbol', pathname.symbol);
+    socket.emit('selectSymbol', params.symbol);
 
     socket.on('symbolData', (newData) => {
       if (newData && newData.type === 'live_feed') {
@@ -236,8 +237,11 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
     });
 
     return () => {
-      console.log('chart cleanup socket ran');
-      socket.off('symbolData');
+      if (!pathname.startsWith('/chart/')) {
+        console.log('chart cleanup socket ran');
+        socket.off('symbolData');
+        socket.disconnect();
+      }
 
       // Cleanup: Unsubscribe from crosshair move when the component is unmounted
       if (chart) {
@@ -306,7 +310,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
             padding: 1,
           }}
         >
-          {pathname.market} : {pathname.symbol}
+          {params.market} : {params.symbol}
         </Typography>
 
         <Box
