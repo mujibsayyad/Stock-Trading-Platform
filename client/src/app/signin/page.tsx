@@ -14,6 +14,8 @@ import {
   Typography,
   InputAdornment,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { Email, Password, ShowChart } from '@mui/icons-material';
 
 //* ************** Custom imports *************** *//
@@ -82,10 +84,13 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
       component='main'
       maxWidth='xl'
       sx={{
-        my: 8,
         p: 0,
         position: 'relative',
         height: '30rem',
+        my: {
+          xs: 0,
+          sm: 8,
+        },
       }}
     >
       <Grid
@@ -100,11 +105,15 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
         {/* Left Grid for Image */}
         <Grid
           item
-          xs={7}
+          xs={12}
+          md={7}
           sx={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            '& img': {
+              display: { xs: 'none', md: 'block' },
+            },
           }}
         >
           <Image
@@ -120,13 +129,17 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
         {/* Right Grid for Login */}
         <Grid
           item
-          xs={5} // 40%
+          xs={12}
+          md={5}
           sx={{
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#191919',
+            backgroundColor: {
+              sm: 'none',
+              md: '#191919',
+            },
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'background.paper' }}>
@@ -150,7 +163,6 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
                 <TextField
                   error={!!inputErrors.email}
                   helperText={inputErrors.email}
-                  autoFocus
                   fullWidth
                   required
                   margin='normal'

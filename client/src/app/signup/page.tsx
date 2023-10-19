@@ -24,6 +24,8 @@ import {
   Person,
   AccessibilityNew,
 } from '@mui/icons-material';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 //* ************** Custom imports *************** *//
 import Loader from '../components/Loader';
@@ -101,11 +103,22 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
       component='main'
       maxWidth='xl'
       sx={{
-        my: 8,
         p: 0,
         position: 'relative',
-        height: '40rem',
+        height: {
+          sm: '50rem',
+          md: '45rem',
+        },
         overflowY: 'auto',
+        my: {
+          xs: 8,
+          sm: 8,
+          md: 8,
+        },
+        mb: {
+          xs: 8,
+          sm: 0,
+        },
       }}
     >
       <Grid
@@ -120,11 +133,15 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
         {/* Left Grid for Image */}
         <Grid
           item
-          xs={7}
+          xs={12}
+          md={7}
           sx={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            '& img': {
+              display: { xs: 'none', md: 'block' },
+            },
           }}
         >
           <Image
@@ -140,13 +157,17 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
         {/* Right Grid for Login */}
         <Grid
           item
-          xs={5} // 40%
+          xs={12}
+          md={5}
           sx={{
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#191919',
+            backgroundColor: {
+              sm: 'blue',
+              md: '#191919',
+            },
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'background.paper' }}>
@@ -176,7 +197,6 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
                   name='firstName'
                   id='firstName'
                   label='First Name'
-                  autoFocus
                   value={firstName}
                   onChange={handleChange}
                   error={!!inputErrors.firstName}

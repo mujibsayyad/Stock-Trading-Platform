@@ -99,7 +99,10 @@ const Navbar: FC = () => {
                   sx={{
                     fontFamily: 'inherit',
                     fontWeight: '600',
-                    fontSize: isMobile ? '0.9rem' : '',
+                    fontSize: {
+                      sm: '0.9rem',
+                      md: '',
+                    },
                   }}
                 >
                   TRADING VIEW
@@ -110,26 +113,10 @@ const Navbar: FC = () => {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               {!isSignedIn && (
                 <>
-                  <Link
-                    href={'/signin'}
-                    style={{
-                      color: 'white',
-                      marginRight: isMobile ? '1rem' : '2rem',
-                      fontWeight: isMobile ? 500 : 600,
-                      letterSpacing: '.1rem',
-                    }}
-                  >
+                  <Link href={'/signin'} className='nav_link'>
                     SignIn
                   </Link>
-                  <Link
-                    href={'/signup'}
-                    style={{
-                      color: 'white',
-                      marginRight: isMobile ? '0' : '2rem',
-                      fontWeight: isMobile ? 500 : 600,
-                      letterSpacing: '.1rem',
-                    }}
-                  >
+                  <Link href={'/signup'} className='nav_link'>
                     SignUp
                   </Link>
                 </>
