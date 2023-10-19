@@ -13,6 +13,8 @@ import {
   Tooltip,
   MenuItem,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { Person, CandlestickChart } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
 
@@ -49,6 +51,11 @@ const Navbar: FC = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  // MUI media queries
+  const theme = useTheme();
+  // 'sm' means screens up to 600px
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <AppBar
@@ -88,7 +95,15 @@ const Navbar: FC = () => {
                   letterSpacing: '.1rem',
                 }}
               >
-                TRADING VIEW
+                <Typography
+                  sx={{
+                    fontFamily: 'inherit',
+                    fontWeight: '600',
+                    fontSize: isMobile ? '0.9rem' : '',
+                  }}
+                >
+                  TRADING VIEW
+                </Typography>
               </Link>
             </Box>
 
@@ -99,8 +114,8 @@ const Navbar: FC = () => {
                     href={'/signin'}
                     style={{
                       color: 'white',
-                      marginRight: '2rem',
-                      fontWeight: 600,
+                      marginRight: isMobile ? '1rem' : '2rem',
+                      fontWeight: isMobile ? 500 : 600,
                       letterSpacing: '.1rem',
                     }}
                   >
@@ -110,8 +125,8 @@ const Navbar: FC = () => {
                     href={'/signup'}
                     style={{
                       color: 'white',
-                      marginRight: '2rem',
-                      fontWeight: 600,
+                      marginRight: isMobile ? '0' : '2rem',
+                      fontWeight: isMobile ? 500 : 600,
                       letterSpacing: '.1rem',
                     }}
                   >
