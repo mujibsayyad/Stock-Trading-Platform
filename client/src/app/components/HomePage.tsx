@@ -6,6 +6,7 @@ import { Search } from '@mui/icons-material';
 import { Container, Box, Typography, Button, Grid } from '@mui/material';
 
 //* ************** Custom imports *************** *//
+import Footer from './Footer';
 import DefaultStocks from './DefaultStocks';
 import HomeImg from '../../../public/homepage/hp1.jpg';
 import HomeSubImg from '../../../public/homepage/hp2.jpg';
@@ -394,6 +395,8 @@ const HomePage: FC = () => {
           world&apos;s fastest-growing economies.
         </Typography>
       </Box>
+
+      <Footer />
     </Box>
   );
 };
