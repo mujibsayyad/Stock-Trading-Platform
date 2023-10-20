@@ -52,7 +52,11 @@ const HomePage: FC = () => {
 
   return (
     <Box sx={{ background: '#000' }}>
-      <Container maxWidth='xl' disableGutters className={NotoFont.className}>
+      <Container
+        style={{ maxWidth: '100%' }}
+        disableGutters
+        className={NotoFont.className}
+      >
         <Box
           style={
             showStocksList ? { filter: 'blur(5px)', pointerEvents: 'none' } : {}
@@ -61,8 +65,8 @@ const HomePage: FC = () => {
           <Box
             sx={{
               position: 'relative',
-              height: '41rem',
-              width: '100%',
+              height: '100vh',
+              width: '100vw',
             }}
           >
             <Image
@@ -82,7 +86,10 @@ const HomePage: FC = () => {
                 sx={{
                   color: 'white',
                   fontWeight: 800,
-                  fontSize: isMobile ? '2.5rem' : '4rem',
+                  fontSize: {
+                    xs: '2.5rem',
+                    md: '4rem',
+                  },
                   fontFamily: 'inherit',
                 }}
               >
@@ -92,7 +99,10 @@ const HomePage: FC = () => {
               <Typography
                 sx={{
                   fontWeight: 600,
-                  fontSize: isMobile ? '1.2rem' : '1.4rem',
+                  fontSize: {
+                    xs: '1.2rem',
+                    md: '1.4rem',
+                  },
                   fontFamily: 'inherit',
                   width: 'fit-content',
                 }}
@@ -104,7 +114,10 @@ const HomePage: FC = () => {
             <Box
               sx={{
                 position: 'absolute',
-                bottom: isMobile ? '35%' : '25%',
+                bottom: {
+                  xs: '35%',
+                  md: '25%',
+                },
                 left: '5%',
               }}
             >
@@ -156,11 +169,17 @@ const HomePage: FC = () => {
       <Typography
         sx={{
           fontWeight: 600,
-          fontSize: isMobile ? '2.5rem' : '5.5rem',
+          fontSize: {
+            xs: '2.5rem',
+            md: '5.5rem',
+          },
           fontFamily: 'inherit',
           textAlign: 'center',
           my: 8,
-          p: isMobile ? 1 : 4,
+          p: {
+            xs: 1,
+            md: 4,
+          },
           letterSpacing: '0.1rem',
         }}
       >
@@ -170,8 +189,14 @@ const HomePage: FC = () => {
       <Box
         mt={4}
         sx={{
-          mx: isMobile ? 0 : 10,
-          p: isMobile ? 3 : 5,
+          mx: {
+            xs: 0,
+            md: 10,
+          },
+          p: {
+            xs: 3,
+            md: 5,
+          },
           mb: 8,
           display: 'flex',
           justifyContent: 'center',
@@ -196,7 +221,10 @@ const HomePage: FC = () => {
           variant='h4'
           sx={{
             fontWeight: 600,
-            fontSize: isMobile ? '2rem' : '2.5rem',
+            fontSize: {
+              xs: '2rem',
+              md: '2.5rem',
+            },
             fontFamily: 'inherit',
           }}
         >
@@ -222,14 +250,27 @@ const HomePage: FC = () => {
         </Typography>
       </Box>
 
-      <Box sx={{ mx: isMobile ? 3 : 10 }}>
+      <Box
+        sx={{
+          mx: {
+            xs: 3,
+            md: 10,
+          },
+        }}
+      >
         <Typography
           sx={{
             fontWeight: 600,
-            fontSize: isMobile ? '2.5rem' : '5.5rem',
+            fontSize: {
+              xs: '2.5rem',
+              md: '5.5rem',
+            },
             fontFamily: 'inherit',
             textAlign: 'center',
-            p: isMobile ? 1 : 4,
+            p: {
+              xs: 1,
+              md: 4,
+            },
             letterSpacing: '0.1rem',
           }}
         >
@@ -267,7 +308,10 @@ const HomePage: FC = () => {
               variant='h4'
               sx={{
                 fontWeight: 600,
-                fontSize: isMobile ? '2rem' : '3rem',
+                fontSize: {
+                  xs: '2rem',
+                  md: '3rem',
+                },
                 fontFamily: 'inherit',
               }}
             >
@@ -277,7 +321,10 @@ const HomePage: FC = () => {
               variant='body1'
               sx={{
                 fontWeight: 500,
-                fontSize: isMobile ? '1rem' : '1.2rem',
+                fontSize: {
+                  xs: '1rem',
+                  md: '1.2rem',
+                },
                 fontFamily: 'inherit',
                 mt: 5,
               }}
@@ -295,6 +342,7 @@ const HomePage: FC = () => {
               alt='Real Time Data Image'
               style={{
                 width: '100%',
+                maxWidth: 'fit-content',
                 height: isMobile ? '100%' : '20rem',
                 objectFit: 'fill',
                 borderRadius: '10%',
@@ -325,6 +373,7 @@ const HomePage: FC = () => {
                 alt='Placeholder'
                 style={{
                   width: '100%',
+                  maxWidth: 'fit-content',
                   height: isMobile ? '100%' : '20rem',
                   objectFit: 'fill',
                   borderRadius: '10%',
@@ -336,7 +385,10 @@ const HomePage: FC = () => {
                 variant='h4'
                 sx={{
                   fontWeight: 600,
-                  fontSize: isMobile ? '2rem' : '3rem',
+                  fontSize: {
+                    xs: '2rem',
+                    md: '3rem',
+                  },
                   fontFamily: 'inherit',
                 }}
               >
@@ -346,7 +398,10 @@ const HomePage: FC = () => {
                 variant='body1'
                 sx={{
                   fontWeight: 500,
-                  fontSize: isMobile ? '1rem' : '1.2rem',
+                  fontSize: {
+                    xs: '1rem',
+                    md: '1.2rem',
+                  },
                   fontFamily: 'inherit',
                   mt: 5,
                 }}
@@ -366,10 +421,19 @@ const HomePage: FC = () => {
       <Typography
         variant='h4'
         sx={{
-          marginTop: isMobile ? 8 : 10,
-          marginBottom: isMobile ? 0 : 10,
+          marginTop: {
+            xs: 8,
+            md: 10,
+          },
+          marginBottom: {
+            xs: 0,
+            md: 10,
+          },
           fontWeight: 600,
-          fontSize: isMobile ? '2.5rem' : '5.5rem',
+          fontSize: {
+            xs: '2.5rem',
+            md: '5.5rem',
+          },
           fontFamily: 'inherit',
           textAlign: 'center',
         }}
@@ -414,7 +478,10 @@ const HomePage: FC = () => {
             sx={{
               color: 'white',
               fontWeight: 700,
-              fontSize: isMobile ? '1.5rem' : '3rem',
+              fontSize: {
+                xs: '1.5rem',
+                md: '3rem',
+              },
               fontFamily: 'inherit',
             }}
           >

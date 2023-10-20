@@ -24,7 +24,7 @@ import { ReduxState } from '@/lib/redux/store';
 import { userLogin } from '@/lib/redux/slices/authSlice';
 import validateUserData from '../hooks/validation';
 import WithAuth, { WithAuthProps } from '../middleware/WithAuth';
-import StockChartImg from '../../../public/signin/stock_chart.jpg';
+import LoginImg from '../../../public/signin/login.jpg';
 
 //* ************** interface *************** *//
 interface customInputErrors {
@@ -117,11 +117,11 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
           }}
         >
           <Image
-            src={StockChartImg}
+            src={LoginImg}
             width={0}
             height={0}
             alt='stock chart'
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             priority
           />
         </Grid>

@@ -33,7 +33,7 @@ import { postData } from '../hooks/axiosapi';
 import { ReduxState } from '@/lib/redux/store';
 import validateUserData from '../hooks/validation';
 import WithAuth, { WithAuthProps } from '../middleware/WithAuth';
-import StockChartImg from '../../../public/signin/stock_chart.jpg';
+import SignupImg from '../../../public/signin/signup.jpg';
 
 //* ************** types *************** *//
 type FieldNames =
@@ -145,11 +145,11 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
           }}
         >
           <Image
-            src={StockChartImg}
+            src={SignupImg}
             width={0}
             height={0}
             alt='stock chart'
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             priority
           />
         </Grid>
