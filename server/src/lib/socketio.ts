@@ -95,61 +95,69 @@ const connectSocket = async (app: any) => {
     socket.on('selectSymbol', async (symbol: string) => {
       console.log('socket requested data for:', symbol);
 
-      const instrument = await fetchInstrumentDetails(symbol);
-      if (!instrument) {
-        const errorMsg = 'No instrument found for the given symbol.';
-
-        // Emit error message to the client
-        socket.emit('error', errorMsg);
-        return;
-      }
-
-      const instrumentKey = instrument.instrument_key;
-
-      try {
-        const wsUrl = await getMarketFeedUrl();
-        ws = await connectWebSocket(wsUrl);
-
+      if (!socketToWsMap.has(socket.id)) {
         socketToWsMap.set(socket.id, ws);
 
-        const data = {
-          guid: 'someguid',
-          method: 'sub',
-          data: {
-            mode: 'full',
-            instrumentKeys: [instrumentKey],
-          },
-        };
+        const instrument = await fetchInstrumentDetails(symbol);
+        if (!instrument) {
+          const errorMsg = 'No instrument found for the given symbol.';
 
-        ws.send(Buffer.from(JSON.stringify(data)));
+          // Emit error message to the client
+          socket.emit('error', errorMsg);
+          return;
+        }
 
-        // Handle WebSocket messages
-        const messageHandler = (data: any) => {
-          const decodedData = decodeProfobuf(data);
-          console.log('🚀 decodedData:', decodedData);
-          socket.emit('symbolData', decodedData);
-        };
-        ws.on('message', messageHandler);
+        const instrumentKey = instrument.instrument_key;
 
-        // Handle WebSocket errors
-        const errorHandler = (err: Error) => {
-          console.error('WebSocket Error:', err);
-          socket.emit('error', 'WebSocket encountered an error.');
-        };
-        ws.on('error', errorHandler);
+        try {
+          const wsUrl = await getMarketFeedUrl();
+          ws = await connectWebSocket(wsUrl);
 
-        // Handle WebSocket close events
-        const closeHandler = (code: number, reason: string) => {
-          console.log(`🚀 WebSocket closed. Code: ${code}, Reason: ${reason}`);
-          ws.close();
-          ws.removeListener('message', messageHandler);
-          ws.removeListener('error', errorHandler);
-          ws.removeListener('close', closeHandler);
-        };
-        ws.on('close', closeHandler);
-      } catch (error) {
-        console.error('An error occurred:', error);
-        socket.emit('error', 'Error retrieving data for the given symbol.');
+          socketToWsMap.set(socket.id, ws);
+
+          const data = {
+            guid: 'someguid',
+            method: 'sub',
+            data: {
+              mode: 'full',
+              instrumentKeys: [instrumentKey],
+            },
+          };
+
+          ws.send(Buffer.from(JSON.stringify(data)));
+
+          // Handle WebSocket messages
+          const messageHandler = (data: any) => {
+            const decodedData = decodeProfobuf(data);
+            console.log('🚀 decodedData:', decodedData);
+            socket.emit('symbolData', decodedData);
+          };
+          ws.on('message', messageHandler);
+
+          // Handle WebSocket errors
+          const errorHandler = (err: Error) => {
+            console.error('WebSocket Error:', err);
+            socket.emit('error', 'WebSocket encountered an error.');
+          };
+          ws.on('error', errorHandler);
+
+          // Handle WebSocket close events
+          const closeHandler = (code: number, reason: string) => {
+            console.log(
+              `🚀 WebSocket closed. Code: ${code}, Reason: ${reason}`
+            );
+            ws.close();
+            ws.removeListener('message', messageHandler);
+            ws.removeListener('error', errorHandler);
+            ws.removeListener('close', closeHandler);
+          };
+          ws.on('close', closeHandler);
+        } catch (error) {
+          console.error('An error occurred:', error);
+          socket.emit('error', 'Error retrieving data for the given symbol.');
+        }
+      } else {
+        console.log(`WebSocket already exists for client ${socket.id}`);
       }
     });
 
@@ -169,6 +177,12 @@ const connectSocket = async (app: any) => {
       }
 
       socketToWsMap.delete(socket.id);
+
+      if (socketToWsMap.has(socket.id)) {
+        console.log(`Error: WebSocket still exists for client ${socket.id}`);
+      } else {
+        console.log(`WebSocket removed for client ${socket.id}`);
+      }
     });
   });
 };
