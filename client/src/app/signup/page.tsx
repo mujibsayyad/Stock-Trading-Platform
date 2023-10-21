@@ -24,8 +24,6 @@ import {
   Person,
   AccessibilityNew,
 } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 
 //* ************** Custom imports *************** *//
 import Loader from '../components/Loader';
@@ -106,12 +104,15 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
         p: 0,
         position: 'relative',
         height: {
-          sm: '50rem',
-          md: '45rem',
+          xs: '100vh',
+          sm: '70vh',
+          md: '100vh',
+          lg: '100vh',
+          xl: '100vh',
         },
         overflowY: 'auto',
         my: {
-          xs: 8,
+          xs: 0,
           sm: 8,
           md: 8,
         },
@@ -140,7 +141,7 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
             justifyContent: 'center',
             alignItems: 'center',
             '& img': {
-              display: { xs: 'none', md: 'block' },
+              display: { xs: 'none', sm: 'none', md: 'block' },
             },
           }}
         >
@@ -165,7 +166,7 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
             justifyContent: 'center',
             alignItems: 'center',
             backgroundColor: {
-              sm: 'blue',
+              sm: 'none',
               md: '#191919',
             },
           }}

@@ -14,8 +14,6 @@ import {
   Typography,
   InputAdornment,
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import { Email, Password, ShowChart } from '@mui/icons-material';
 
 //* ************** Custom imports *************** *//
@@ -86,7 +84,13 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
       sx={{
         p: 0,
         position: 'relative',
-        height: '30rem',
+        height: {
+          xs: '70vh',
+          sm: '60vh',
+          md: '80vh',
+          lg: '80vh',
+          xl: '95vh',
+        },
         my: {
           xs: 0,
           sm: 8,
