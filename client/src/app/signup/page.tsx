@@ -69,6 +69,8 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const { isSignedIn, status } = useSelector((state: ReduxState) => state.auth);
 
   useEffect(() => {
+    document.title = 'Stock Trading | Sign Up';
+
     if (isAuthenticated) {
       router.push('/');
     }

@@ -102,6 +102,8 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   };
 
   useEffect(() => {
+    document.title = `${params.market} : ${params.symbol}`;
+
     if (chartContainerRef.current && !chart) {
       const newChart = createChart(chartContainerRef.current, {
         layout: {
