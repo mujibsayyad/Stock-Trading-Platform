@@ -63,7 +63,7 @@ const WithAuth = (
       };
     }, [dispatch, isPublicPage, isSignedIn, router]);
 
-    if (status === 'loading' || loading) {
+    if (loading) {
       return <Loader />;
     }
 

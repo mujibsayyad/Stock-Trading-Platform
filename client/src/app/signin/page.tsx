@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, FC } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { TailSpin } from 'react-loader-spinner';
 import {
   Box,
   Grid,
@@ -15,7 +16,6 @@ import {
   InputAdornment,
 } from '@mui/material';
 import { Email, Password, ShowChart } from '@mui/icons-material';
-
 //* ************** Custom imports *************** *//
 import Loader from '../components/Loader';
 import { ReduxState } from '@/lib/redux/store';
@@ -35,6 +35,7 @@ interface customInputErrors {
 const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [authError, setAuthError] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [inputErrors, setInputErrors] = useState<customInputErrors>({});
 
@@ -44,13 +45,13 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
 
   useEffect(() => {
     document.title = 'Stock Trading | Sign In';
-    
+
     if (isAuthenticated) {
       router.push('/');
     }
   }, [isAuthenticated]);
 
-  if (status === 'loading' || isAuthenticated || isSignedIn) {
+  if (isAuthenticated || isSignedIn) {
     return <Loader />;
   }
 
@@ -65,12 +66,15 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
 
     setInputErrors({});
     setSubmitting(true);
+    setAuthError('');
 
     // handle login...
     try {
       const checkAuth = await dispatch(userLogin({ email, password }));
       if (checkAuth.payload?.isSignedIn) {
         router.push('/');
+      } else {
+        setAuthError(checkAuth?.error.message);
       }
     } catch (error) {
       console.log('🚀 handleSignin.error:', error);
@@ -156,6 +160,23 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
             />
           </Avatar>
           <Typography variant='h5'>Sign in with email</Typography>
+          {authError && (
+            <Typography
+              variant='subtitle1'
+              sx={{
+                color: 'black',
+                background: '#f7a7a3',
+                fontFamily: 'inherit',
+                borderRadius: '0.4rem',
+                borderLeft: '5px solid #8f130c',
+                px: 3,
+                py: 0.8,
+                my: 1.5,
+              }}
+            >
+              {authError}
+            </Typography>
+          )}
           <Box
             component='form'
             sx={{
@@ -224,7 +245,20 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
                 onClick={handleSignin}
                 disabled={submitting}
               >
-                {submitting ? 'Loading...' : 'Sign In'}
+                {submitting ? (
+                  <TailSpin
+                    height='24'
+                    width='24'
+                    color='#0079FF'
+                    ariaLabel='tail-spin-loading'
+                    radius='1'
+                    wrapperStyle={{}}
+                    wrapperClass=''
+                    visible={true}
+                  />
+                ) : (
+                  'Sign In'
+                )}
               </Button>
             </Grid>
           </Box>

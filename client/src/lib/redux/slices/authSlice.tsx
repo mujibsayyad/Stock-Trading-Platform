@@ -18,7 +18,7 @@ export const userLogin = createAsyncThunk(
         return data;
       }
     } catch (error: any) {
-      console.log('🚀 userLogin ~ error:', error.response?.data.message);
+      // console.log('🚀 userLogin ~ error:', error.response?.data.message);
       throw new Error(error.response?.data.message);
     }
   }

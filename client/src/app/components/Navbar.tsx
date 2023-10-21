@@ -14,8 +14,6 @@ import {
   Tooltip,
   MenuItem,
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import { Person, CandlestickChart } from '@mui/icons-material';
 import { useSelector } from 'react-redux';
 
@@ -53,11 +51,6 @@ const Navbar: FC = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-
-  // MUI media queries
-  const theme = useTheme();
-  // 'sm' means screens up to 600px
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <AppBar
@@ -99,7 +92,6 @@ const Navbar: FC = () => {
               >
                 <Typography
                   sx={{
-                    fontFamily: 'inherit',
                     fontWeight: '600',
                     fontSize: {
                       sm: '0.9rem',

@@ -56,7 +56,7 @@ export const signin = [
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json('No user found');
+      return res.status(404).json({ message: 'No user found' });
     }
 
     try {

@@ -17,6 +17,9 @@ const isAuthenticate = async (
   console.log('🚀 token:', token ? 'token available' : 'No Token');
 
   if (!token) {
+    if (process.env.NODE_ENV === 'production') {
+      return res.end();
+    }
     return res.status(401).json({ error: 'No Token, Authorization Failed' });
   }
 
