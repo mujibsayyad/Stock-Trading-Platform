@@ -7,10 +7,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { socket } from './socket';
 import { getReq } from '../hooks/axiosapi';
 import { validateUser } from '@/lib/redux/slices/authSlice';
-import {
-  connectSocket,
-  disconnectSocket,
-} from '@/lib/redux/slices/socketSlice';
 import Loader from '../components/Loader';
 
 //* ************** interface *************** *//

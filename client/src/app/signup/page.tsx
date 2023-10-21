@@ -62,6 +62,7 @@ const initialUserData: UserData = {
 const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [userData, setUserData] = useState<UserData>(initialUserData);
   const [inputErrors, setInputErrors] = useState<InputErrors>({});
+  const [authError, setAuthError] = useState<string>('');
 
   const { firstName, lastName, email, password, confirmPassword } = userData;
 
@@ -85,7 +86,7 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
     setUserData({ ...userData, [name]: value });
   };
 
-  const handleSignup = (e: FormEvent) => {
+  const handleSignup = async (e: FormEvent) => {
     e.preventDefault();
     const validationResult = validateUserData(userData, 'signup');
 
@@ -94,7 +95,10 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
     } else {
       setInputErrors({});
       // handle successful signup...
-      postData('/signup', userData);
+      const checkAuth: any = await postData('/signup', userData);
+      if (checkAuth?.error?.error) {
+        setAuthError(checkAuth.error.error);
+      }
     }
   };
 
@@ -183,6 +187,25 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
           <Typography component='h1' variant='h5'>
             Sign up with email
           </Typography>
+
+          {authError && (
+            <Typography
+              variant='subtitle1'
+              sx={{
+                color: 'black',
+                background: '#f7a7a3',
+                fontFamily: 'inherit',
+                borderRadius: '0.4rem',
+                borderLeft: '5px solid #8f130c',
+                px: 3,
+                py: 0.8,
+                my: 1.5,
+              }}
+            >
+              {authError}
+            </Typography>
+          )}
+
           <Box
             component='form'
             sx={{
