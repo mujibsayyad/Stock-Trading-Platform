@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect, FC } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   AppBar,
   Box,
@@ -23,6 +24,7 @@ const settings = ['Profile', 'Logout'];
 const Navbar: FC = () => {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const pathname = usePathname();
 
   const { isSignedIn } = useSelector((state: any) => state.auth);
 
@@ -111,16 +113,18 @@ const Navbar: FC = () => {
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              {!isSignedIn && (
-                <>
-                  <Link href={'/signin'} className='nav_link'>
-                    SignIn
-                  </Link>
-                  <Link href={'/signup'} className='nav_link'>
-                    SignUp
-                  </Link>
-                </>
-              )}
+              {!isSignedIn &&
+                pathname !== '/signin' &&
+                pathname !== '/signup' && (
+                  <>
+                    <Link href={'/signin'} className='nav_link'>
+                      SignIn
+                    </Link>
+                    <Link href={'/signup'} className='nav_link'>
+                      SignUp
+                    </Link>
+                  </>
+                )}
 
               {isSignedIn && (
                 <Box sx={{ flexGrow: 0 }}>
