@@ -107,7 +107,10 @@ const DefaultStocks: FC<DefaultStocksProps> = ({ getStateFromStocks }) => {
               backgroundColor: '#2A2E39',
               borderRadius: '2rem',
               padding: '0.4rem 1rem',
-              width: '60%',
+              width: {
+                xs: '95%',
+                sm: '60%',
+              },
               '&:focus': {
                 backgroundColor: 'white',
                 boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',

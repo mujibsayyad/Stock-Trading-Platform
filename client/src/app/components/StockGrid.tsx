@@ -58,7 +58,10 @@ const StockGrid: FC<StockGridProps> = ({ stocks }) => {
         mt: 3,
         ml: 0,
         borderRadius: '0.2rem',
-        width: '60%',
+        width: {
+          xs: '95%',
+          sm: '60%',
+        },
         height: '30rem',
         overflowY: 'scroll !important',
       }}
@@ -75,7 +78,6 @@ const StockGrid: FC<StockGridProps> = ({ stocks }) => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-
             placeItems: 'center !important',
             margin: 'auto',
             paddingBottom: '0.2rem',
@@ -89,11 +91,18 @@ const StockGrid: FC<StockGridProps> = ({ stocks }) => {
         >
           <Grid container spacing={3}>
             <Grid item xs={3} sx={{ textAlign: 'left' }}>
-              <Typography variant='body1'>{stock.name}</Typography>
+              <Typography
+                variant='body1'
+                sx={{ fontSize: { xs: '90%', sm: '100%' } }}
+              >
+                {stock.name}
+              </Typography>
             </Grid>
 
             <Grid item xs={6} sx={{ textAlign: 'left' }}>
-              <Typography variant='body2'>{stock.companyName}</Typography>
+              <Typography sx={{ fontSize: { xs: '60%', sm: '90%' } }}>
+                {stock.companyName}
+              </Typography>
             </Grid>
 
             <Grid
@@ -103,7 +112,7 @@ const StockGrid: FC<StockGridProps> = ({ stocks }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'flex-end',
-                paddingRight: '24px',
+                paddingRight: '0.5rem',
               }}
             >
               {hovered === index ? (
