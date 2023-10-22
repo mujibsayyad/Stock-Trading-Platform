@@ -90,16 +90,10 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
       sx={{
         p: 0,
         position: 'relative',
-        height: {
-          xs: '70vh',
-          sm: '60vh',
-          md: '80vh',
-          lg: '80vh',
-          xl: '95vh',
-        },
+        height: '100vh',
         my: {
           xs: 0,
-          sm: 8,
+          sm: 1.2,
         },
       }}
     >
@@ -149,6 +143,13 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
             backgroundColor: {
               sm: 'none',
               md: '#191919',
+            },
+            overflow: {
+              xs: 'hidden',
+            },
+            mb: {
+              xs: 20,
+              sm: 1.2,
             },
           }}
         >

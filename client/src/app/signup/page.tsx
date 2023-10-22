@@ -14,7 +14,6 @@ import {
   Button,
   TextField,
   Avatar,
-  CssBaseline,
   InputAdornment,
 } from '@mui/material';
 import {
@@ -109,22 +108,11 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
       sx={{
         p: 0,
         position: 'relative',
-        height: {
-          xs: '100vh',
-          sm: '70vh',
-          md: '100vh',
-          lg: '100vh',
-          xl: '100vh',
-        },
-        overflowY: 'auto',
-        my: {
-          xs: 0,
-          sm: 8,
-          md: 8,
-        },
+        height: '100vh',
         mb: {
-          xs: 8,
-          sm: 0,
+          xs: 10,
+          sm: 10,
+          md: 10,
         },
       }}
     >
@@ -147,7 +135,7 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
             justifyContent: 'center',
             alignItems: 'center',
             '& img': {
-              display: { xs: 'none', sm: 'none', md: 'block' },
+              display: { xs: 'none', md: 'block' },
             },
           }}
         >
@@ -174,6 +162,17 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
             backgroundColor: {
               sm: 'none',
               md: '#191919',
+            },
+            overflow: {
+              xs: 'hidden',
+            },
+            pb: {
+              xs: 10,
+              md: 6,
+            },
+            mt: {
+              xs: 8,
+              md: 0,
             },
           }}
         >
