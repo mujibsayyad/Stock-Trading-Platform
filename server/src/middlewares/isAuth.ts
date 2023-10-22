@@ -8,13 +8,20 @@ interface CustomRequest extends Request {
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY as string;
 
+const customLogger = (message: any) => {
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(message);
+  }
+};
+
 const isAuthenticate = async (
   req: CustomRequest,
   res: Response,
   next: NextFunction
 ) => {
   const token = req.cookies.jwtoken;
-  console.log('🚀 token:', token ? 'token available' : 'No Token');
+
+  customLogger('🚀 token:' + (token ? 'token available' : 'No Token'));
 
   if (!token) {
     if (process.env.NODE_ENV === 'production') {
@@ -24,7 +31,7 @@ const isAuthenticate = async (
   }
 
   if (!PRIVATE_KEY) {
-    console.error('PRIVATE_KEY is not set.');
+    customLogger('🚀 PRIVATE_KEY is not set.');
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 
@@ -41,7 +48,8 @@ const isAuthenticate = async (
         .json({ name: 'TokenExpiredError', message: 'jwt expired' });
     }
 
-    console.log('isAuth catch.error', error);
+    customLogger('🚀 isAuth catch.error: ' + error);
+
     res.status(401).json({
       message: 'Unauthorized: token invalid',
     });
