@@ -22,3 +22,16 @@ export const getReq = async () => {
     return { error: error?.response?.data };
   }
 };
+
+export const searchStock = async (symbol: string) => {
+  try {
+    const req = await api.get(`/stockdata/search`, {
+      params: {
+        symbol: symbol,
+      },
+    });
+    return req.data;
+  } catch (error: any) {
+    return { error: error?.response?.data };
+  }
+};

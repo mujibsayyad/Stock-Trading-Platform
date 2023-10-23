@@ -1,11 +1,10 @@
 'use client';
-import { useState, useMemo, FC } from 'react';
+import { useState, useEffect, FC } from 'react';
 import {
   Container,
   Box,
   Input,
   Button,
-  Typography,
   InputAdornment,
 } from '@mui/material';
 import { Search, Clear } from '@mui/icons-material';
@@ -13,7 +12,7 @@ import { Search, Clear } from '@mui/icons-material';
 import StockGrid from './StockGrid';
 import defaultStocks from './Stocks';
 import useDebounce from '../hooks/debounce';
-import { useSearchStockQuery } from '@/lib/redux/api/stockApi';
+import { searchStock } from '../hooks/axiosapi';
 
 // TS Interface
 interface DefaultStocksProps {
@@ -21,38 +20,40 @@ interface DefaultStocksProps {
 }
 
 const DefaultStocks: FC<DefaultStocksProps> = ({ getStateFromStocks }) => {
+  const [stocks, setStocks] = useState<any[]>([]);
   const [inputText, setInputText] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const debouncedQuery = useDebounce(inputText, 5000);
+  const debouncedQuery = useDebounce(inputText, 1000);
 
-  // Search stock by url params (rtk api)
-  const {
-    data: searchedStockData,
-    error,
-    isLoading,
-    isFetching,
-  } = useSearchStockQuery(debouncedQuery, {
-    skip: !debouncedQuery,
-  });
+  useEffect(() => {
+    if (debouncedQuery) {
+      setLoading(true);
+      const stockSearch = async () => {
+        try {
+          const res = await searchStock(debouncedQuery);
 
-  // Transform searched data into default stock data format
-  const transformSearchedData = (data: any[]): any[] => {
-    if (!data || !Array.isArray(data)) return [];
+          if (!res?.error?.message) {
+            const stockArray = Object.entries(res).map(([key, value]) => ({
+              name: key,
+              companyName: value,
+            }));
 
-    return data.map((stock) => {
-      return {
-        name: stock['1. symbol']?.split('.')[0],
-        companyName: stock['2. name'],
-        symbol: stock['1. symbol']?.split('.')[1],
-        country: stock['4. region']?.split('/')[0],
+            setStocks(stockArray);
+          } else {
+            setStocks([]);
+          }
+        } catch (error) {
+          console.error('Error fetching stocks:', error);
+          setStocks([]);
+        } finally {
+          setLoading(false);
+        }
       };
-    });
-  };
 
-  const reshapedData = useMemo(
-    () => transformSearchedData(searchedStockData),
-    [searchedStockData]
-  );
+      stockSearch();
+    }
+  }, [debouncedQuery]);
 
   // Clear search input
   const handleClearButton = () => {
@@ -158,13 +159,9 @@ const DefaultStocks: FC<DefaultStocksProps> = ({ getStateFromStocks }) => {
 
         {/* Stocks Grid */}
         {inputText ? (
-          reshapedData?.length > 0 ? (
-            <StockGrid stocks={reshapedData} />
-          ) : (
-            <Typography variant='h6'>No data found</Typography>
-          )
+          <StockGrid stocks={stocks} stockLoading={loading} />
         ) : (
-          <StockGrid stocks={defaultStocks} />
+          <StockGrid stocks={defaultStocks} stockLoading={loading} />
         )}
       </Container>
     </Box>

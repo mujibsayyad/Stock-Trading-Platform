@@ -10,16 +10,6 @@ export const stockApi = createApi({
   // },
   tagTypes: ['stocks'],
   endpoints: (builder) => ({
-    // search stock
-    searchStock: builder.query({
-      query: (symbol) => ({
-        url: `/stockdata/search?symbol=${symbol}`,
-        method: 'GET',
-        credentials: 'include',
-      }),
-      providesTags: ['stocks'],
-    }),
-
     // get stock data
     getStockData: builder.query({
       query: ({ market, symbol }) => ({
@@ -32,4 +22,4 @@ export const stockApi = createApi({
   }),
 });
 
-export const { useSearchStockQuery, useGetStockDataQuery } = stockApi;
+export const { useGetStockDataQuery } = stockApi;

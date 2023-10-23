@@ -16,6 +16,7 @@ interface StockType {
 
 interface StockGridProps {
   stocks: StockType[];
+  stockLoading: boolean;
 }
 
 interface StockDataInterface {
@@ -25,9 +26,9 @@ interface StockDataInterface {
   country: string;
 }
 
-const StockGrid: FC<StockGridProps> = ({ stocks }) => {
+const StockGrid: FC<StockGridProps> = ({ stocks, stockLoading }) => {
   const [hovered, setHovered] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -41,10 +42,9 @@ const StockGrid: FC<StockGridProps> = ({ stocks }) => {
 
   // Handle redirect to chart page
   const handleLaunchChartButton = async (data: StockDataInterface) => {
-    console.log('launch chart data:', data);
-    const { name, symbol } = data;
+    const { name } = data;
     setLoading(true);
-    router.push(`/chart/${symbol}/${name}`);
+    router.push(`/chart/NSE/${name}`);
   };
 
   if (loading) return <Loader />;
@@ -64,101 +64,127 @@ const StockGrid: FC<StockGridProps> = ({ stocks }) => {
         },
         height: '30rem',
         overflowY: 'scroll !important',
+        justifyContent: stockLoading ? 'center' : 'flex-start',
+        alignItems: stockLoading ? 'center' : 'flex-start',
       }}
     >
-      {stocks.map((stock, index) => (
+      {stockLoading ? (
         <Grid
           item
           xs={12}
-          key={index}
-          onMouseEnter={() => setHovered(index)}
-          onMouseLeave={() => setHovered(null)}
-          sx={{
-            height: '2.8rem',
+          style={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            placeItems: 'center !important',
-            margin: 'auto',
-            paddingBottom: '0.2rem',
-            borderBottom: '1px solid #2a2e39',
-            width: '100%',
-            '&:hover': {
-              backgroundColor: '#2A2E39',
-              transition: 'backgroundColor 0.5s',
-            },
+            textAlign: 'center',
           }}
         >
-          <Grid container spacing={3}>
-            <Grid item xs={3} sx={{ textAlign: 'left' }}>
-              <Typography
-                variant='body1'
-                sx={{ fontSize: { xs: '90%', sm: '100%' } }}
-              >
-                {stock.name}
-              </Typography>
-            </Grid>
-
-            <Grid item xs={6} sx={{ textAlign: 'left' }}>
-              <Typography sx={{ fontSize: { xs: '60%', sm: '90%' } }}>
-                {stock.companyName}
-              </Typography>
-            </Grid>
-
-            <Grid
-              item
-              xs={3}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                paddingRight: '0.5rem',
-              }}
-            >
-              {hovered === index ? (
-                <Button
-                  variant='contained'
-                  onClick={() => handleLaunchChartButton(stock)}
-                  sx={{
-                    color: '#fff',
-                    backgroundColor: '#2962ff',
-                    boxShadow: 'none',
-                    textTransform: 'none',
-                    borderRadius: 2,
-                    p: '0.02rem 0.6rem',
-                    '&:hover': {
-                      backgroundColor: '#2962ff',
-                    },
-                  }}
-                >
-                  Launch Chart
-                </Button>
-              ) : (
+          <Loader />
+        </Grid>
+      ) : stocks.length === 0 ? (
+        <Grid
+          item
+          xs={12}
+          style={{
+            textAlign: 'center',
+          }}
+        >
+          <Typography variant='h6'>No stocks found</Typography>
+        </Grid>
+      ) : (
+        stocks.map((stock, index) => (
+          <Grid
+            item
+            xs={12}
+            key={index}
+            onMouseEnter={() => setHovered(index)}
+            onMouseLeave={() => setHovered(null)}
+            sx={{
+              height: '2.8rem',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              placeItems: 'center !important',
+              margin: 'auto',
+              paddingBottom: '0.2rem',
+              borderBottom: '1px solid #2a2e39',
+              width: '100%',
+              '&:hover': {
+                backgroundColor: '#2A2E39',
+                transition: 'backgroundColor 0.5s',
+              },
+            }}
+          >
+            <Grid container spacing={3}>
+              <Grid item xs={3} sx={{ textAlign: 'left' }}>
                 <Typography
-                  variant='body2'
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
+                  variant='body1'
+                  sx={{ fontSize: { xs: '90%', sm: '100%' } }}
                 >
-                  {stock.symbol}
-
-                  <Image
-                    src={indiaFlag}
-                    height={25}
-                    width={25}
-                    alt='india flag'
-                    style={{
-                      borderRadius: '50%',
-                      marginLeft: '5px',
-                    }}
-                  />
+                  {stock.name}
                 </Typography>
-              )}
+              </Grid>
+
+              <Grid item xs={6} sx={{ textAlign: 'left' }}>
+                <Typography sx={{ fontSize: { xs: '60%', sm: '90%' } }}>
+                  {stock.companyName}
+                </Typography>
+              </Grid>
+
+              <Grid
+                item
+                xs={3}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  paddingRight: '0.5rem',
+                }}
+              >
+                {hovered === index ? (
+                  <Button
+                    variant='contained'
+                    onClick={() => handleLaunchChartButton(stock)}
+                    sx={{
+                      color: '#fff',
+                      backgroundColor: '#2962ff',
+                      boxShadow: 'none',
+                      textTransform: 'none',
+                      borderRadius: 2,
+                      p: '0.02rem 0.6rem',
+                      '&:hover': {
+                        backgroundColor: '#2962ff',
+                      },
+                    }}
+                  >
+                    Launch Chart
+                  </Button>
+                ) : (
+                  <Typography
+                    variant='body2'
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    NSE
+                    <Image
+                      src={indiaFlag}
+                      height={25}
+                      width={25}
+                      alt='india flag'
+                      style={{
+                        borderRadius: '50%',
+                        marginLeft: '5px',
+                      }}
+                    />
+                  </Typography>
+                )}
+              </Grid>
             </Grid>
           </Grid>
-        </Grid>
-      ))}
+        ))
+      )}
     </Grid>
   );
 };
