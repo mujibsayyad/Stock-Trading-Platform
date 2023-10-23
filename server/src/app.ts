@@ -9,7 +9,10 @@ const app = express();
 app.use(helmet());
 app.disable('x-powered-by');
 
-const whiteList = ['http://localhost:3000'];
+const whiteList = [
+  'http://localhost:3000',
+  'https://stock-platform.vercel.app',
+];
 
 const corsOption = {
   origin: whiteList,
