@@ -71,6 +71,8 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [color, setColor] = useState<string>(DEFAULT_COLOR);
   const [latestOhlc, setLatestOhlc] = useState(ohlcObj);
   const [ohlc, setOhlc] = useState(ohlcObj);
+  const [isHovered, setIsHovered] = useState(false);
+  const [hoverColor, setHoverColor] = useState<string>(DEFAULT_COLOR);
   const [prevClose, setPrevClose] = useState<number>(0);
 
   const chartContainerRef = useRef(null);
@@ -94,16 +96,16 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         });
 
         // determineColor function to set the color
-        setColor(determineColor(price.open, price.close));
+        setHoverColor(determineColor(price.open, price.close));
+        setIsHovered(true);
       } else {
         setOhlc(latestOhlc);
+        setIsHovered(false);
       }
     }
   };
 
   useEffect(() => {
-    document.title = `${params.market} : ${params.symbol}`;
-
     if (chartContainerRef.current && !chart) {
       const newChart = createChart(chartContainerRef.current, {
         layout: {
@@ -177,7 +179,14 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
       }
 
       // Subscribe to crosshair move to get the hovered candlestick data
-      chart?.subscribeCrosshairMove(updateOHLCData);
+      chart?.subscribeCrosshairMove((param) => {
+        if (param.point && param.seriesData && param.seriesData.has(series)) {
+          setIsHovered(true);
+          updateOHLCData(param);
+        } else {
+          setIsHovered(false);
+        }
+      });
 
       chart?.timeScale().fitContent();
     }
@@ -252,33 +261,56 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
     };
   }, [data, chart, series]);
 
-  if (!isAuthenticated) return null;
+  // *****************************************************************************
 
+  // Percentage change of current data
   const percentageChangeValue =
     ((latestOhlc.close - prevClose) / prevClose) * 100;
+  // Price diffrence between last data and new data
   const priceChangeValue = latestOhlc.close - prevClose;
+
+  // Update title based on current values
+  useEffect(() => {
+    const prefix = percentageChangeValue > 0 ? '+' : '';
+
+    const newTitle = `${params.market} : ${
+      params.symbol
+    } (${prefix}${percentageChangeValue.toFixed(2)}%)`;
+
+    document.title = newTitle;
+  }, [percentageChangeValue]);
+
+  if (!isAuthenticated) return null;
 
   return (
     <Grid container sx={{ mt: 8 }}>
-      <Grid item xs={8} sx={{ ml: 0.2 }}>
+      <Grid item xs={12} sm={8} sx={{ ml: 0.2 }}>
         <Box className='chartWrapper'>
           <Box className='ohlcInfo' display='flex' gap={2}>
             <Typography variant='body2'>
               Open:{' '}
-              <span style={{ color: color }}>{latestOhlc.open.toFixed(2)}</span>
+              <span style={{ color: isHovered ? hoverColor : color }}>
+                {isHovered ? ohlc.open.toFixed(2) : latestOhlc.open.toFixed(2)}
+              </span>
             </Typography>
             <Typography variant='body2'>
               High:{' '}
-              <span style={{ color: color }}>{latestOhlc.high.toFixed(2)}</span>
+              <span style={{ color: isHovered ? hoverColor : color }}>
+                {isHovered ? ohlc.high.toFixed(2) : latestOhlc.high.toFixed(2)}
+              </span>
             </Typography>
             <Typography variant='body2'>
               Low:{' '}
-              <span style={{ color: color }}>{latestOhlc.low.toFixed(2)}</span>
+              <span style={{ color: isHovered ? hoverColor : color }}>
+                {isHovered ? ohlc.low.toFixed(2) : latestOhlc.low.toFixed(2)}
+              </span>
             </Typography>
             <Typography variant='body2'>
               Close:{' '}
-              <span style={{ color: color }}>
-                {latestOhlc.close.toFixed(2)}
+              <span style={{ color: isHovered ? hoverColor : color }}>
+                {isHovered
+                  ? ohlc.close.toFixed(2)
+                  : latestOhlc.close.toFixed(2)}
               </span>
             </Typography>
           </Box>
