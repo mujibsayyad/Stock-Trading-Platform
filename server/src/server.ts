@@ -2,7 +2,7 @@ import 'dotenv/config';
 import http from 'http';
 import app from './app';
 import connectDB from './lib/mongodb';
-import connectRedis from './lib/redis';
+// import connectRedis from './lib/redis';
 import connectSocket from './lib/socketio';
 
 const server = http.createServer(app);

@@ -1,7 +1,7 @@
 // @ts-ignore
 import * as UpstoxClient from 'upstox-js-sdk';
 import fetchInstrumentDetails from './fetchInstrumentDetails';
-import { redis } from '../lib/redis';
+// import { redis } from '../lib/redis';
 import { WebSocket } from 'ws';
 
 export const fetchUpstoxData = async (symbol: string): Promise<string> => {
@@ -13,7 +13,7 @@ export const fetchUpstoxData = async (symbol: string): Promise<string> => {
   const interval = '1minute';
   const instrumentKey = instrument.instrument_key;
 
-  const cacheStockData = await redis.get(instrument.instrument_key);
+  // const cacheStockData = await redis.get(instrument.instrument_key);
 
   // if (cacheStockData) {
   //   console.log('🚀 serving cacheStockData:');
