@@ -81,7 +81,7 @@ const connectSocket = async (app: any) => {
 
   const io = new Server(app, {
     cors: {
-      origin: 'http://localhost:3000',
+      origin: process.env.CLIENT_URL,
       methods: ['GET', 'POST'],
       credentials: true,
     },
