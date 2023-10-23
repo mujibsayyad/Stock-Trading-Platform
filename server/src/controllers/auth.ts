@@ -86,9 +86,8 @@ export const signin = [
       maxAge: 43200000, // 12 hr
       httpOnly: true,
       path: '/',
-      sameSite: 'lax',
-      secure: false,
-      domain: 'localhost',
+      sameSite: 'none',
+      secure: true,
     });
 
     return res.status(200).json({

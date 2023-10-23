@@ -79,7 +79,7 @@ initProtobuf();
 const connectSocket = async (app: any) => {
   const io = new Server(app, {
     cors: {
-      origin: process.env.CLIENT_URL,
+      origin: process.env.CLIENT_DOMAIN,
       methods: ['GET', 'POST'],
       credentials: true,
     },
