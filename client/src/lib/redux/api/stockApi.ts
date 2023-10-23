@@ -2,7 +2,9 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const stockApi = createApi({
   reducerPath: 'stockApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:5000/api' }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api`,
+  }),
   // prepareHeaders: (headers, { getState }) => {
   //   // If using Redux for storing the token
   //   // const token = selectToken(getState());

@@ -232,7 +232,7 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
             </Grid>
 
             <Grid container justifyContent='center' item xs={8}>
-              <Link href='/forgot'>{"I forgot password or can't sign in"}</Link>
+              <Link href='/'>{"I forgot password or can't sign in"}</Link>
             </Grid>
 
             <Grid container justifyContent='center' item xs={8}>
