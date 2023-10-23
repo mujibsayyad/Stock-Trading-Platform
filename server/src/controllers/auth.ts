@@ -152,7 +152,7 @@ export const loginUpstox = async (req: Request, res: Response) => {
 // Callback after successful login
 export const redirectUpstox = async (req: Request, res: Response) => {
   const code = req.query.code;
-  console.log('🚀 code:', code);
+  // console.log('🚀 code:', code);
 
   // Set up data to get accessToken
   const tokenData = {
@@ -178,7 +178,7 @@ export const redirectUpstox = async (req: Request, res: Response) => {
     );
 
     const accessToken = response.data.access_token;
-    console.log('🚀 accessToken:', accessToken);
+    // console.log('🚀 accessToken:', accessToken);
 
     // Store this accessToken for subsequent requests
     setAccessToken(accessToken);

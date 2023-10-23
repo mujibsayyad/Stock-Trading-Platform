@@ -77,8 +77,6 @@ const decodeProfobuf = (buffer: any) => {
 initProtobuf();
 
 const connectSocket = async (app: any) => {
-  console.log('🚀 connectSocket');
-
   const io = new Server(app, {
     cors: {
       origin: process.env.CLIENT_URL,
@@ -93,7 +91,7 @@ const connectSocket = async (app: any) => {
     let ws: any;
 
     socket.on('selectSymbol', async (symbol: string) => {
-      console.log('socket requested data for:', symbol);
+      // console.log('socket requested data for:', symbol);
 
       if (!socketToWsMap.has(socket.id)) {
         socketToWsMap.set(socket.id, ws);
@@ -129,7 +127,7 @@ const connectSocket = async (app: any) => {
           // Handle WebSocket messages
           const messageHandler = (data: any) => {
             const decodedData = decodeProfobuf(data);
-            console.log('🚀 decodedData:', decodedData);
+            // console.log('🚀 decodedData:', decodedData);
             socket.emit('symbolData', decodedData);
           };
           ws.on('message', messageHandler);
