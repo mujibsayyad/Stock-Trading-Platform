@@ -142,6 +142,16 @@ export const signup = [
   },
 ];
 
+exports.logout = (req: Request, res: Response) => {
+  res.clearCookie('jwtoken', {
+    domain: process.env.CLIENT_DOMAIN,
+    secure: true,
+    sameSite: 'none',
+  });
+
+  return res.status(200).json({ message: 'Logged out successfully' });
+};
+
 //* ************** UPSTOX AUTH *************** *//
 export const loginUpstox = async (req: Request, res: Response) => {
   const loginUrl = `https://api-v2.upstox.com/login/authorization/dialog?response_type=code&client_id=${process.env.UPSTOX_API_KEY}&redirect_uri=${process.env.UPSTOX_REDIRECT_URL}`;
