@@ -142,9 +142,10 @@ export const signup = [
   },
 ];
 
-exports.logout = (req: Request, res: Response) => {
+// Handle User Logout
+export const logout = (req: Request, res: Response) => {
   res.clearCookie('jwtoken', {
-    domain: process.env.CLIENT_DOMAIN,
+    domain: process.env.CLIENT_DOMAIN_NAME,
     secure: true,
     sameSite: 'none',
   });

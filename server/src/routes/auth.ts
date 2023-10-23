@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   signin,
   signup,
+  logout,
   validateLogin,
   loginUpstox,
   redirectUpstox,
@@ -19,5 +20,7 @@ router.get('/redirect', redirectUpstox);
 router.post('/signin', signin);
 
 router.post('/signup', signup);
+
+router.post('/logout', logout);
 
 export default router;
