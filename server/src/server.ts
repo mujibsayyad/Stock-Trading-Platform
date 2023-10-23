@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5000;
   try {
     await connectDB();
     await connectSocket(server);
-    await connectRedis();
+    // await connectRedis();
   } catch (error) {
     console.log(error);
     process.exit(1);
