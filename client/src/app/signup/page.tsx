@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, ChangeEvent, FormEvent, FC } from 'react';
 import { useSelector } from 'react-redux';
+import { TailSpin } from 'react-loader-spinner';
 
 //* ************** mui *************** *//
 import {
@@ -20,7 +21,6 @@ import {
   Email,
   Password,
   ShowChart,
-  Person,
   AccessibilityNew,
 } from '@mui/icons-material';
 
@@ -29,16 +29,12 @@ import Loader from '../components/Loader';
 import { postData } from '../hooks/axiosapi';
 import { ReduxState } from '@/lib/redux/store';
 import validateUserData from '../hooks/validation';
+import GoogleLogin from '../components/GoogleLogin';
 import WithAuth, { WithAuthProps } from '../middleware/WithAuth';
 import SignupImg from '../../../public/signin/signup.jpg';
 
 //* ************** types *************** *//
-type FieldNames =
-  | 'firstName'
-  | 'lastName'
-  | 'email'
-  | 'password'
-  | 'confirmPassword';
+type FieldNames = 'fullname' | 'email' | 'password' | 'confirmPassword';
 
 type UserData = {
   [key in FieldNames]: string;
@@ -50,8 +46,7 @@ type InputErrors = {
 
 //* ************** *************** *//
 const initialUserData: UserData = {
-  firstName: '',
-  lastName: '',
+  fullname: '',
   email: '',
   password: '',
   confirmPassword: '',
@@ -62,8 +57,9 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [userData, setUserData] = useState<UserData>(initialUserData);
   const [inputErrors, setInputErrors] = useState<InputErrors>({});
   const [authError, setAuthError] = useState<string>('');
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
-  const { firstName, lastName, email, password, confirmPassword } = userData;
+  const { fullname, email, password, confirmPassword } = userData;
 
   const router = useRouter();
   const { isSignedIn, status } = useSelector((state: ReduxState) => state.auth);
@@ -93,10 +89,21 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
       setInputErrors(validationResult.errors);
     } else {
       setInputErrors({});
-      // handle successful signup...
-      const checkAuth: any = await postData('/signup', userData);
-      if (checkAuth?.error?.error) {
-        setAuthError(checkAuth.error.error);
+      setSubmitting(true);
+
+      // handle signup...
+      try {
+        const checkAuth: any = await postData('/signup', userData);
+
+        if (!checkAuth?.error?.error) {
+          router.push('/');
+        } else {
+          setAuthError(checkAuth.error.error);
+        }
+      } catch (error) {
+        console.log('🚀 handleSignup.error:', error);
+      } finally {
+        setSubmitting(false);
       }
     }
   };
@@ -108,7 +115,7 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
       sx={{
         p: 0,
         position: 'relative',
-        height: '100vh',
+        minHeight: '100vh',
         mb: {
           xs: 10,
           sm: 10,
@@ -122,7 +129,11 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
         sx={{
           borderRadius: '1rem',
           overflow: 'hidden',
-          height: '100%',
+          minHeight: '100vh',
+          mt: {
+            sm: 0,
+            md: 1,
+          },
         }}
       >
         {/* Left Grid for Image */}
@@ -161,8 +172,9 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
             alignItems: 'center',
             backgroundColor: {
               sm: 'none',
-              md: '#191919',
+              md: 'rgba(144, 202, 249, 0.08);',
             },
+
             overflow: {
               xs: 'hidden',
             },
@@ -183,9 +195,68 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
               }}
             />
           </Avatar>
-          <Typography component='h1' variant='h5'>
-            Sign up with email
+          <Typography
+            component='h1'
+            variant='h6'
+            sx={{
+              pb: 2,
+              textTransform: 'uppercase',
+              fontWeight: '600',
+              fontFamily: 'inherit',
+            }}
+          >
+            Sign up for Trading View
           </Typography>
+
+          {/* Google Button  */}
+          <GoogleLogin text={'Google'} />
+
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+            }}
+          >
+            <Box
+              sx={{
+                my: '2rem',
+                height: '1px',
+                mx: '11px',
+                flex: '1 1 0%',
+                borderRadius: '2px',
+                backgroundImage:
+                  'linear-gradient(90deg, rgba(233, 237, 241, 0) 35%, rgb(161, 165, 190))',
+              }}
+            >
+              {' '}
+            </Box>
+            <Typography
+              sx={{
+                display: 'flex',
+                my: '0px',
+                justifyContent: 'center',
+                alignItems: 'center',
+                fontSize: '14px',
+                textAlign: 'center',
+              }}
+            >
+              OR
+            </Typography>
+            <Box
+              sx={{
+                display: 'block',
+                height: '1px',
+                mx: '11px',
+                flex: ' 1 1 0%',
+                backgroundImage:
+                  'linear-gradient(90deg, rgba(233, 237, 241, 0) 35%, rgb(161, 165, 190))',
+                transform: 'rotate(180deg)',
+                borderRadius: '2px',
+              }}
+            ></Box>
+          </Box>
 
           {authError && (
             <Typography
@@ -219,35 +290,13 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
                   fullWidth
                   required
                   margin='normal'
-                  name='firstName'
-                  id='firstName'
-                  label='First Name'
-                  value={firstName}
+                  id='fullName'
+                  label='Full Name'
+                  name='fullname'
+                  value={fullname}
                   onChange={handleChange}
-                  error={!!inputErrors.firstName}
-                  helperText={inputErrors.firstName}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position='start'>
-                        <Person />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={8}>
-                <TextField
-                  fullWidth
-                  required
-                  margin='normal'
-                  id='lastName'
-                  label='Last Name'
-                  name='lastName'
-                  value={lastName}
-                  onChange={handleChange}
-                  error={!!inputErrors.lastName}
-                  helperText={inputErrors.lastName}
+                  error={!!inputErrors.fullname}
+                  helperText={inputErrors.fullname}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position='start'>
@@ -338,8 +387,22 @@ const Signup: FC<WithAuthProps> = ({ isAuthenticated }) => {
                   borderRadius: 5,
                 }}
                 onClick={handleSignup}
+                disabled={submitting}
               >
-                Sign Up
+                {submitting ? (
+                  <TailSpin
+                    height='24'
+                    width='24'
+                    color='#0079FF'
+                    ariaLabel='tail-spin-loading'
+                    radius='1'
+                    wrapperStyle={{}}
+                    wrapperClass=''
+                    visible={true}
+                  />
+                ) : (
+                  'Sign Up'
+                )}
               </Button>
             </Grid>
           </Box>

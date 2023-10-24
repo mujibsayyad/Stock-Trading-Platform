@@ -18,6 +18,7 @@ import {
 import { Email, Password, ShowChart } from '@mui/icons-material';
 //* ************** Custom imports *************** *//
 import Loader from '../components/Loader';
+import GoogleLogin from '../components/GoogleLogin';
 import { ReduxState } from '@/lib/redux/store';
 import { userLogin } from '@/lib/redux/slices/authSlice';
 import validateUserData from '../hooks/validation';
@@ -90,10 +91,13 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
       sx={{
         p: 0,
         position: 'relative',
-        height: '100vh',
+        minHeight: '100vh',
         my: {
           xs: 0,
           sm: 1.2,
+        },
+        mb: {
+          md: 6,
         },
       }}
     >
@@ -103,7 +107,11 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
         sx={{
           borderRadius: '1rem',
           overflow: 'hidden',
-          height: '100%',
+          minHeight: '100vh',
+          my: {
+            sm: 0,
+            md: 1,
+          },
         }}
       >
         {/* Left Grid for Image */}
@@ -142,13 +150,13 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
             alignItems: 'center',
             backgroundColor: {
               sm: 'none',
-              md: '#191919',
+              md: 'rgba(144, 202, 249, 0.08);',
             },
             overflow: {
               xs: 'hidden',
             },
             mb: {
-              xs: 20,
+              xs: 10,
               sm: 1.2,
             },
           }}
@@ -160,13 +168,75 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
               }}
             />
           </Avatar>
-          <Typography variant='h5'>Sign in with email</Typography>
+          <Typography
+            component='h1'
+            variant='h6'
+            sx={{
+              pb: 2,
+              textTransform: 'uppercase',
+              fontWeight: '600',
+              fontFamily: 'inherit',
+            }}
+          >
+            Sign in to Trading View
+          </Typography>
+
+          {/* Google Button  */}
+          <GoogleLogin text={'Google'} />
+
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+            }}
+          >
+            <Box
+              sx={{
+                my: '2rem',
+                height: '1px',
+                mx: '11px',
+                flex: '1 1 0%',
+                borderRadius: '2px',
+                backgroundImage:
+                  'linear-gradient(90deg, rgba(233, 237, 241, 0) 35%, rgb(161, 165, 190))',
+              }}
+            >
+            </Box>
+            <Typography
+              sx={{
+                display: 'flex',
+                my: '0px',
+                justifyContent: 'center',
+                alignItems: 'center',
+                fontSize: '14px',
+                textAlign: 'center',
+              }}
+            >
+              OR
+            </Typography>
+            <Box
+              sx={{
+                display: 'block',
+                height: '1px',
+                mx: '11px',
+                flex: ' 1 1 0%',
+                backgroundImage:
+                  'linear-gradient(90deg, rgba(233, 237, 241, 0) 35%, rgb(161, 165, 190))',
+                transform: 'rotate(180deg)',
+                borderRadius: '2px',
+              }}
+            ></Box>
+          </Box>
+
           {authError && (
             <Typography
               variant='subtitle1'
               sx={{
                 color: 'black',
                 background: '#f7a7a3',
+                backdropFilter: 'blur(5px)',
                 fontFamily: 'inherit',
                 borderRadius: '0.4rem',
                 borderLeft: '5px solid #8f130c',
@@ -178,6 +248,7 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
               {authError}
             </Typography>
           )}
+
           <Box
             component='form'
             sx={{
