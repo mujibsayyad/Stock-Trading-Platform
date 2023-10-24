@@ -15,16 +15,21 @@ import {
   MenuItem,
 } from '@mui/material';
 import { Person, CandlestickChart } from '@mui/icons-material';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLogoutMutation } from '@/lib/redux/api/profileApi';
+import { signout } from '@/lib/redux/slices/authSlice';
 
-const settings = ['Profile', 'Logout'];
+const settings = ['Sign out'];
 
 const Navbar: FC = () => {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const pathname = usePathname();
+  const dispatch = useDispatch();
 
   const { isSignedIn } = useSelector((state: any) => state.auth);
+
+  const [logout] = useLogoutMutation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,6 +55,13 @@ const Navbar: FC = () => {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+    userLogout();
+  };
+
+  // Handle user logout
+  const userLogout = async () => {
+    const resLogout = await logout('');
+    dispatch(signout(resLogout));
   };
 
   return (
