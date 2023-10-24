@@ -105,7 +105,7 @@ export const signup = [
   ...signupValidationRules(),
   validate,
   async (req: Request, res: Response) => {
-    const { firstName, lastName, email, password } = req.body;
+    const { fullname, email, password } = req.body;
 
     let existingUser = await User.findOne({ email });
     // console.log('🚀 existingUser:', existingUser);
@@ -117,7 +117,7 @@ export const signup = [
     let hashedPassword = await bcrypt.hash(password, 12);
 
     let newUser = new User({
-      name: firstName + lastName,
+      name: fullname,
       email: email,
       password: hashedPassword,
     });
@@ -132,6 +132,26 @@ export const signup = [
     }
 
     const { id, name, email: userEmail } = newUser;
+
+    let accessToken;
+    try {
+      accessToken = jwt.sign(
+        { _id: id, email: email },
+        process.env.PRIVATE_KEY as string,
+        { expiresIn: '12h' }
+      );
+    } catch (error) {
+      console.log('Error signing JWT', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+
+    res.cookie('jwtoken', accessToken, {
+      maxAge: 43200000, // 12 hr
+      httpOnly: true,
+      path: '/',
+      sameSite: 'none',
+      secure: true,
+    });
 
     return res.status(200).json({
       message: 'Registration Successful',
@@ -150,7 +170,9 @@ export const logout = (req: Request, res: Response) => {
     sameSite: 'none',
   });
 
-  return res.status(200).json({ message: 'Logged out successfully' });
+  return res
+    .status(200)
+    .json({ isSignedIn: false, message: 'sign out successfully' });
 };
 
 //* ************** UPSTOX AUTH *************** *//
@@ -188,7 +210,7 @@ export const redirectUpstox = async (req: Request, res: Response) => {
     );
 
     const accessToken = response.data.access_token;
-    // console.log('🚀 accessToken:', accessToken);
+    console.log('🚀 accessToken:', accessToken);
 
     // Store this accessToken for subsequent requests
     setAccessToken(accessToken);
