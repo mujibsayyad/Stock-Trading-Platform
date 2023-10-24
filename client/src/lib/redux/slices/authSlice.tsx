@@ -46,6 +46,10 @@ const authSlice = createSlice({
       state.isSignedIn = action.payload?.isSignedIn;
     },
 
+    signout: (state, action) => {
+      state.isSignedIn = action.payload?.isSignedIn;
+    },
+
     validateUser: (state, action) => {
       state.isSignedIn = action.payload?.isSignedIn;
     },
@@ -68,5 +72,5 @@ const authSlice = createSlice({
   },
 });
 
-export let { signin, validateUser } = authSlice.actions;
+export let { signin, signout, validateUser } = authSlice.actions;
 export default authSlice;
