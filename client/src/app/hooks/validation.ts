@@ -1,6 +1,5 @@
 interface UserInput {
-  firstName?: string;
-  lastName?: string;
+  fullname?: string;
   email: string;
   password: string;
   confirmPassword?: string;
@@ -32,11 +31,8 @@ const validateUserData = (
   }
 
   if (type === 'signup') {
-    if (!input.firstName || input.firstName.trim().length < 1) {
-      errors.firstName = 'First Name is required';
-    }
-    if (!input.lastName || input.lastName.trim().length < 1) {
-      errors.lastName = 'Last name is required';
+    if (!input.fullname || input.fullname.trim().length < 1) {
+      errors.fullname = 'Full Name is required';
     }
     if (input.password.length < 8) {
       errors.password = 'Password must be at least 8 characters';

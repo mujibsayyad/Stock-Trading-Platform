@@ -21,18 +21,12 @@ export const signinValidationRules = () => {
 // signup validation rules
 export const signupValidationRules = () => {
   return [
-    check('firstName')
+    check('fullname')
       .notEmpty()
       .trim()
       .escape()
       .isString()
-      .withMessage('First Name is required'),
-
-    check('lastName')
-      .notEmpty()
-      .trim()
-      .isString()
-      .withMessage('Last Name is required'),
+      .withMessage('Full Name is required'),
 
     check('email')
       .trim()
