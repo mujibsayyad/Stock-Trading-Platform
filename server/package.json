@@ -27,6 +27,7 @@
     "mongoose": "^7.4.2",
     "nodemailer": "^6.9.4",
     "protobufjs": "^7.2.5",
+    "qs": "^6.11.2",
     "socket.io": "^4.7.2",
     "upstox-js-sdk": "^2.1.0",
     "ws": "^8.14.2"
@@ -39,6 +40,7 @@
     "@types/jsonwebtoken": "^9.0.2",
     "@types/mongoose": "^5.11.97",
     "@types/node": "^20.6.2",
+    "@types/qs": "^6.9.9",
     "@types/ws": "^8.5.6",
     "copyfiles": "^2.4.1",
     "nodemon": "^3.0.1",
