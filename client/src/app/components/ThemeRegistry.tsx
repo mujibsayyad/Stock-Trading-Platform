@@ -12,6 +12,9 @@ export default function ThemeRegistry(props: any) {
   const theme = createTheme({
     palette: {
       mode: 'dark',
+      background: {
+        default: '#100b16',
+      },
     },
     components: {
       MuiCssBaseline: {
