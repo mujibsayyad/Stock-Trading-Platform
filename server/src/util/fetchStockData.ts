@@ -20,7 +20,7 @@ export const fetchUpstoxData = async (symbol: string): Promise<string> => {
   //   return JSON.parse(cacheStockData);
   // }
 
-  console.log('🚀 serving real api:');
+  // console.log('🚀 serving real api:');
   return new Promise((resolve, reject) => {
     let apiInstance = new UpstoxClient.HistoryApi();
     let apiVersion = '2.0';

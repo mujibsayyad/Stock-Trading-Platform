@@ -210,7 +210,7 @@ export const redirectUpstox = async (req: Request, res: Response) => {
     );
 
     const accessToken = response.data.access_token;
-    console.log('🚀 accessToken:', accessToken);
+    // console.log('🚀 accessToken:', accessToken);
 
     // Store this accessToken for subsequent requests
     setAccessToken(accessToken);

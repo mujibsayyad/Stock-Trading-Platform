@@ -25,7 +25,7 @@ const WithAuth = (
     const [loading, setLoading] = useState(pathname.startsWith('/chart/'));
 
     const { isSignedIn, status } = useSelector((state: any) => state.auth);
-    console.log('🚀 isSignedIn:', isSignedIn);
+    // console.log('🚀 isSignedIn:', isSignedIn);
 
     const dispatch = useDispatch<any>();
 

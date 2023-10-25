@@ -15,7 +15,6 @@ function GoogleOAuth() {
     const token: string | null = new URLSearchParams(
       window.location.search
     ).get('token');
-    console.log('🚀 useEffect ~ token:', token);
 
     setToken(token);
   }, []);

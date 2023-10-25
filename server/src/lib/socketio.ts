@@ -42,16 +42,16 @@ const connectWebSocket = async (wsUrl: any) => {
     });
 
     ws.on('open', () => {
-      console.log('connected');
+      console.log('🚀 ws connected');
       resolve(ws);
     });
 
     ws.on('close', () => {
-      console.log('disconnected');
+      console.log('🚀 ws disconnected');
     });
 
     ws.on('error', (error) => {
-      console.log('error:', error);
+      console.log('🚀 ws error:', error);
       reject(error);
     });
   });
@@ -59,7 +59,7 @@ const connectWebSocket = async (wsUrl: any) => {
 
 const initProtobuf = async () => {
   protobufRoot = await protobuf.load(__dirname + '/MarketDataFeed.proto');
-  console.log('Protobuf part initialization complete');
+  console.log('🚀 Protobuf part initialization complete');
 };
 
 const decodeProfobuf = (buffer: any) => {
@@ -127,7 +127,7 @@ const connectSocket = async (app: any) => {
           // Handle WebSocket messages
           const messageHandler = (data: any) => {
             const decodedData = decodeProfobuf(data);
-            // console.log('🚀 decodedData:', decodedData);
+            console.log('🚀 decodedData:', decodedData);
             socket.emit('symbolData', decodedData);
           };
           ws.on('message', messageHandler);
@@ -141,9 +141,9 @@ const connectSocket = async (app: any) => {
 
           // Handle WebSocket close events
           const closeHandler = (code: number, reason: string) => {
-            console.log(
-              `🚀 WebSocket closed. Code: ${code}, Reason: ${reason}`
-            );
+            // console.log(
+            //   `🚀 WebSocket closed. Code: ${code}, Reason: ${reason}`
+            // );
             ws.close();
             ws.removeListener('message', messageHandler);
             ws.removeListener('error', errorHandler);
@@ -155,23 +155,24 @@ const connectSocket = async (app: any) => {
           socket.emit('error', 'Error retrieving data for the given symbol.');
         }
       } else {
-        console.log(`WebSocket already exists for client ${socket.id}`);
+        // console.log(`WebSocket already exists for client ${socket.id}`);
+        return;
       }
     });
 
     // Handle socket.io disconnect and close the associated WebSocket
     socket.on('disconnect', (reason: string) => {
-      console.log(`Socket.io client disconnected. Reason: ${reason}`);
+      // console.log(`Socket.io client disconnected. Reason: ${reason}`);
 
       // Fetch the WebSocket instance associated with this socket.io socket
       const clientWs = socketToWsMap.get(socket.id);
 
       // If the WebSocket exists and it's open, close it.
       if (clientWs && clientWs.readyState === clientWs.OPEN) {
-        console.log('Closing WebSocket...');
+        // console.log('Closing WebSocket...');
         clientWs.close();
         clientWs.removeAllListeners();
-        console.log('Associated WebSocket closed.');
+        // console.log('Associated WebSocket closed.');
       }
 
       socketToWsMap.delete(socket.id);
@@ -179,7 +180,8 @@ const connectSocket = async (app: any) => {
       if (socketToWsMap.has(socket.id)) {
         console.log(`Error: WebSocket still exists for client ${socket.id}`);
       } else {
-        console.log(`WebSocket removed for client ${socket.id}`);
+        // console.log(`WebSocket removed for client ${socket.id}`);
+        return;
       }
     });
   });
