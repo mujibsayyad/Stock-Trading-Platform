@@ -127,7 +127,7 @@ const connectSocket = async (app: any) => {
           // Handle WebSocket messages
           const messageHandler = (data: any) => {
             const decodedData = decodeProfobuf(data);
-            console.log('🚀 decodedData:', decodedData);
+            // console.log('🚀 decodedData:', decodedData);
             socket.emit('symbolData', decodedData);
           };
           ws.on('message', messageHandler);
