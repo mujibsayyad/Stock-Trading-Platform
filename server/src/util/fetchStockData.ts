@@ -99,7 +99,20 @@ export const getMarketStatus = async (): Promise<string | undefined> => {
       return 'Market Not Found';
     }
 
-    return indiaMarketStatus[0].current_status;
+    let status = indiaMarketStatus[0].current_status;
+
+    // Extending 15 min extra
+    if (status === 'closed') {
+      const currentTime = new Date();
+      const closingTime = new Date();
+      closingTime.setHours(15, 30, 0); // 3:30 pm IST
+
+      // Extend the 'open' status till 3:30 pm
+      if (currentTime <= closingTime) {
+        status = 'open';
+      }
+    }
+    return status;
   } catch (error) {
     console.log('🚀 getMarketStatus ~ error:', error);
     return;

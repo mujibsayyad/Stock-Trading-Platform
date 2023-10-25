@@ -90,7 +90,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hoverColor, setHoverColor] = useState<string>(DEFAULT_COLOR);
   const [prevClose, setPrevClose] = useState<number>(0);
-  const [marketStatus, setMarketStatus] = useState<string | null>(null);
+  const [marketStatus, setMarketStatus] = useState<string>('closed');
 
   const chartContainerRef = useRef(null);
   const params = useParams();
@@ -156,7 +156,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         tickMarkFormatter: (time: number) => {
           const date = new Date(time * 1000);
           const monthName = monthNames[date.getMonth()];
-          if (marketStatus === null && marketStatus === 'closed') {
+          if (marketStatus === 'closed') {
             // If the market is closed or the status is null, display the date
             return `${date.getDate().toString().padStart(2, '0')} ${monthName}`;
           } else {
@@ -331,7 +331,12 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
             ref={chartContainerRef}
             sx={{
               width: '100%',
-              height: '80vh',
+              height: '20rem',
+              minHeight: {
+                xs: '60vh',
+                sm: '80vh',
+              },
+              overflow: 'hidden',
               position: 'relative',
             }}
           >
@@ -381,6 +386,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
           </Box>
         </Box>
       </Grid>
+      
       <Grid
         item
         style={{ flexGrow: 1 }}
@@ -440,6 +446,10 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
                 px: 2,
                 fontWeight: '600',
                 fontFamily: 'inherit',
+                fontSize: {
+                  xs: '0.8rem',
+                  sm: '',
+                },
               }}
             >
               Today {new Date().toDateString()}
@@ -458,6 +468,10 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
                 px: 2,
                 fontWeight: '600',
                 fontFamily: 'inherit',
+                fontSize: {
+                  xs: '0.8rem',
+                  sm: '',
+                },
               }}
             >
               <LiveTime />
@@ -479,6 +493,10 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
                 textTransform: 'capitalize',
                 fontFamily: 'inherit',
                 fontWeight: '600',
+                fontSize: {
+                  xs: '0.8rem',
+                  sm: '',
+                },
               }}
             >
               Market
@@ -491,6 +509,10 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
                 textTransform: 'capitalize',
                 fontFamily: 'inherit',
                 fontWeight: '600',
+                fontSize: {
+                  xs: '0.8rem',
+                  sm: '',
+                },
               }}
             >
               {marketStatus && marketStatus}
