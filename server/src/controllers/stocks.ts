@@ -2,13 +2,42 @@ import fs from 'fs';
 import path from 'path';
 import csv from 'csv-parser';
 import { Request, Response } from 'express';
-import { fetchUpstoxData } from '../util/fetchStockData';
+import {
+  isWeekend,
+  formatDate,
+  fetchUpstoxData,
+  getMarketStatus,
+  getLastMarketData,
+} from '../util/fetchStockData';
 
 export const stockData = async (req: Request, res: Response) => {
   try {
     const symbol = req.params.symbol.toUpperCase();
-    const data = await fetchUpstoxData(symbol);
-    res.json(data);
+
+    // Get market status open / close
+    const marketStatus = await getMarketStatus();
+
+    if (marketStatus === 'closed' || isWeekend(new Date())) {
+      const today = new Date();
+      const sevenDaysAgo = new Date(today);
+
+      // Subtract 7 days from today
+      sevenDaysAgo.setDate(today.getDate() - 7);
+
+      const fromDate = formatDate(sevenDaysAgo);
+      const toDate = formatDate(today);
+
+      // Fetch the data for the date range
+      const historyData: any = await getLastMarketData({
+        symbol,
+        toDate,
+        fromDate,
+      });
+      return res.status(200).json({ data: historyData.data, marketStatus });
+    } else {
+      const data: any = await fetchUpstoxData(symbol);
+      return res.status(200).json({ data: data.data, marketStatus });
+    }
   } catch (error) {
     console.error('Internal server error:', error);
     res.status(500).json({ message: 'Internal server error.' });

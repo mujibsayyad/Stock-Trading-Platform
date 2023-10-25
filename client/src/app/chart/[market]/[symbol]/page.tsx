@@ -10,6 +10,7 @@ import {
 import { Box, Typography, Grid } from '@mui/material';
 
 //* ************** Custom imports *************** *//
+import LiveTime from '@/app/hooks/LiveTime';
 import { socket } from '@/app/middleware/socket';
 import { useGetStockDataQuery } from '@/lib/redux/api/stockApi';
 import WithAuth, { WithAuthProps } from '@/app/middleware/WithAuth';
@@ -17,7 +18,7 @@ import WithAuth, { WithAuthProps } from '@/app/middleware/WithAuth';
 const DEFAULT_COLOR = '#b2b5be';
 const GREEN = '#089981';
 const RED = '#F23645';
-const BLACK = 'black';
+const BLACK = 'b2b5be';
 
 // * Determines the color of a candle based on its open and close values.
 const determineColor = (open: number, close: number) => {
@@ -65,6 +66,21 @@ const ohlcObj = {
   close: 0,
 };
 
+const monthNames = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
 const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [chart, setChart] = useState<IChartApi | null>(null);
   const [series, setSeries] = useState<ISeriesApi<'Candlestick'> | null>(null);
@@ -74,6 +90,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hoverColor, setHoverColor] = useState<string>(DEFAULT_COLOR);
   const [prevClose, setPrevClose] = useState<number>(0);
+  const [marketStatus, setMarketStatus] = useState<string | null>(null);
 
   const chartContainerRef = useRef(null);
   const params = useParams();
@@ -84,7 +101,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
     skip: !isAuthenticated,
   });
 
-  const updateOHLCData = (param: any) => {
+  const updateOHLCData: any = (param: any) => {
     if (param.seriesData && param.seriesData.has(series)) {
       const price = param.seriesData.get(series);
       if (price) {
@@ -106,6 +123,10 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   };
 
   useEffect(() => {
+    if (data && data.marketStatus) {
+      setMarketStatus(data.marketStatus);
+    }
+
     if (chartContainerRef.current && !chart) {
       const newChart = createChart(chartContainerRef.current, {
         layout: {
@@ -131,12 +152,20 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
       newChart.timeScale().applyOptions({
         timeVisible: true,
         secondsVisible: false,
+        barSpacing: 10,
         tickMarkFormatter: (time: number) => {
           const date = new Date(time * 1000);
-          return `${date.getHours().toString().padStart(2, '0')}:${date
-            .getMinutes()
-            .toString()
-            .padStart(2, '0')}`;
+          const monthName = monthNames[date.getMonth()];
+          if (marketStatus === null && marketStatus === 'closed') {
+            // If the market is closed or the status is null, display the date
+            return `${date.getDate().toString().padStart(2, '0')} ${monthName}`;
+          } else {
+            // Otherwise, display the time
+            return `${date.getHours().toString().padStart(2, '0')}:${date
+              .getMinutes()
+              .toString()
+              .padStart(2, '0')}`;
+          }
         },
       });
 
@@ -158,7 +187,12 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
       series.setData(formattedData);
 
       // Get the last data point which will be the latest data
-      const latestDataPoint = formattedData[0];
+      const latestDataPoint = formattedData[formattedData.length - 1];
+      const secondlatestDataPoint = formattedData[formattedData.length - 2];
+
+      if (secondlatestDataPoint?.close) {
+        setPrevClose(secondlatestDataPoint?.close);
+      }
 
       if (latestDataPoint) {
         setLatestOhlc({
@@ -174,7 +208,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         } else if (latestDataPoint.close < latestDataPoint.open) {
           setColor(RED); // Red for price down
         } else {
-          setColor('black'); // Default for unchanged
+          setColor(BLACK); // Default for unchanged
         }
       }
 
@@ -191,61 +225,63 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
       chart?.timeScale().fitContent();
     }
 
-    socket.emit('selectSymbol', params.symbol);
+    if (marketStatus !== null && marketStatus !== 'closed') {
+      socket.emit('selectSymbol', params.symbol);
 
-    socket.on('symbolData', (newData) => {
-      if (newData && newData.type === 'live_feed') {
-        // Extracting the dynamic stock key
-        const stockKey = Object.keys(newData.feeds || {})[0];
+      socket.on('symbolData', (newData) => {
+        if (newData && newData.type === 'live_feed') {
+          // Extracting the dynamic stock key
+          const stockKey = Object.keys(newData.feeds || {})[0];
 
-        if (!stockKey) {
-          console.log('No valid stock key found');
-          return;
+          if (!stockKey) {
+            console.log('No valid stock key found');
+            return;
+          }
+
+          // Accessing nested OHLC data
+          const ohlcData =
+            newData.feeds[stockKey]?.ff?.marketFF?.marketOHLC?.ohlc;
+
+          if (ohlcData) {
+            const filteredData = ohlcData.filter(
+              (item: any) => item.interval === 'I1'
+            );
+
+            setPrevClose(latestOhlc.close);
+
+            const oneMinDataPoint = filteredData[1];
+            const lastDataPoint = filteredData[0];
+
+            if (lastDataPoint) {
+              setPrevClose(lastDataPoint.close);
+            }
+
+            if (oneMinDataPoint && series) {
+              const formattedData = transformSingleDataToPoint(oneMinDataPoint);
+              // @ts-ignore
+              series?.update(formattedData);
+            }
+
+            // Save this data as the latest OHLC data
+            setLatestOhlc({
+              open: oneMinDataPoint.open,
+              high: oneMinDataPoint.high,
+              low: oneMinDataPoint.low,
+              close: oneMinDataPoint.close,
+            });
+
+            // Set the color based on the latest data
+            if (oneMinDataPoint.close > oneMinDataPoint.open) {
+              setColor(GREEN); // Green for price up
+            } else if (oneMinDataPoint.close < oneMinDataPoint.open) {
+              setColor(RED); // Red for price down
+            } else {
+              setColor(BLACK);
+            }
+          }
         }
-
-        // Accessing nested OHLC data
-        const ohlcData =
-          newData.feeds[stockKey]?.ff?.marketFF?.marketOHLC?.ohlc;
-
-        if (ohlcData) {
-          const filteredData = ohlcData.filter(
-            (item: any) => item.interval === 'I1'
-          );
-
-          setPrevClose(latestOhlc.close);
-
-          const oneMinDataPoint = filteredData[1];
-          const lastDataPoint = filteredData[0];
-
-          if (lastDataPoint) {
-            setPrevClose(lastDataPoint.close);
-          }
-
-          if (oneMinDataPoint && series) {
-            const formattedData = transformSingleDataToPoint(oneMinDataPoint);
-            // @ts-ignore
-            series?.update(formattedData);
-          }
-
-          // Save this data as the latest OHLC data
-          setLatestOhlc({
-            open: oneMinDataPoint.open,
-            high: oneMinDataPoint.high,
-            low: oneMinDataPoint.low,
-            close: oneMinDataPoint.close,
-          });
-
-          // Set the color based on the latest data
-          if (oneMinDataPoint.close > oneMinDataPoint.open) {
-            setColor(GREEN); // Green for price up
-          } else if (oneMinDataPoint.close < oneMinDataPoint.open) {
-            setColor(RED); // Red for price down
-          } else {
-            setColor('black');
-          }
-        }
-      }
-    });
+      });
+    }
 
     return () => {
       if (!pathname.startsWith('/chart/')) {
@@ -259,7 +295,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         chart.unsubscribeCrosshairMove(updateOHLCData);
       }
     };
-  }, [data, chart, series]);
+  }, [data, chart, series, marketStatus]);
 
   // *****************************************************************************
 
@@ -278,6 +314,11 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
     } (${prefix}${percentageChangeValue.toFixed(2)}%)`;
 
     document.title = newTitle;
+    document.body.style.backgroundColor = 'red !important';
+
+    return () => {
+      document.title = 'Stock Trading Platform';
+    };
   }, [percentageChangeValue]);
 
   if (!isAuthenticated) return null;
@@ -286,38 +327,58 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
     <Grid container sx={{ mt: 8 }}>
       <Grid item xs={12} sm={8} sx={{ ml: 0.2 }}>
         <Box className='chartWrapper'>
-          <Box className='ohlcInfo' display='flex' gap={2}>
-            <Typography variant='body2'>
-              Open:{' '}
-              <span style={{ color: isHovered ? hoverColor : color }}>
-                {isHovered ? ohlc.open.toFixed(2) : latestOhlc.open.toFixed(2)}
-              </span>
-            </Typography>
-            <Typography variant='body2'>
-              High:{' '}
-              <span style={{ color: isHovered ? hoverColor : color }}>
-                {isHovered ? ohlc.high.toFixed(2) : latestOhlc.high.toFixed(2)}
-              </span>
-            </Typography>
-            <Typography variant='body2'>
-              Low:{' '}
-              <span style={{ color: isHovered ? hoverColor : color }}>
-                {isHovered ? ohlc.low.toFixed(2) : latestOhlc.low.toFixed(2)}
-              </span>
-            </Typography>
-            <Typography variant='body2'>
-              Close:{' '}
-              <span style={{ color: isHovered ? hoverColor : color }}>
-                {isHovered
-                  ? ohlc.close.toFixed(2)
-                  : latestOhlc.close.toFixed(2)}
-              </span>
-            </Typography>
-          </Box>
           <Box
             ref={chartContainerRef}
-            sx={{ width: '100%', height: '550px' }}
-          ></Box>
+            sx={{
+              width: '100%',
+              height: '80vh',
+              position: 'relative',
+            }}
+          >
+            <Box
+              className='ohlcInfo'
+              display='flex'
+              gap={2}
+              sx={{
+                background: '#151924',
+                position: 'absolute',
+                top: 10,
+                zIndex: 10,
+                ml: 1,
+              }}
+            >
+              <Typography variant='body2'>
+                Open:{' '}
+                <span style={{ color: isHovered ? hoverColor : color }}>
+                  {isHovered
+                    ? ohlc.open.toFixed(2)
+                    : latestOhlc.open.toFixed(2)}
+                </span>
+              </Typography>
+              <Typography variant='body2'>
+                High:{' '}
+                <span style={{ color: isHovered ? hoverColor : color }}>
+                  {isHovered
+                    ? ohlc.high.toFixed(2)
+                    : latestOhlc.high.toFixed(2)}
+                </span>
+              </Typography>
+              <Typography variant='body2'>
+                Low:{' '}
+                <span style={{ color: isHovered ? hoverColor : color }}>
+                  {isHovered ? ohlc.low.toFixed(2) : latestOhlc.low.toFixed(2)}
+                </span>
+              </Typography>
+              <Typography variant='body2'>
+                Close:{' '}
+                <span style={{ color: isHovered ? hoverColor : color }}>
+                  {isHovered
+                    ? ohlc.close.toFixed(2)
+                    : latestOhlc.close.toFixed(2)}
+                </span>
+              </Typography>
+            </Box>
+          </Box>
         </Box>
       </Grid>
       <Grid
@@ -329,53 +390,130 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
           backdropFilter: 'blur(0.5rem)',
           transition: 'backgroundColor 0.5s',
           borderRadius: '1rem',
-          background: '#03001Ccc',
+          background: '#121010',
           height: 'fit-content',
         }}
       >
-        <Typography
-          variant='h5'
+        <Grid
+          item
           sx={{
-            background: '#03C988bb',
+            background: '#2a2e39ff',
+            border: '1px solid rgba( 255, 255, 255, 0.10 )',
             backdropFilter: 'blur(5px)',
-            textAlign: 'center',
-            borderRadius: '2rem',
+            borderRadius: '1rem',
+            p: 2,
             mb: 2,
-            padding: 1,
           }}
         >
-          {params.market} : {params.symbol}
-        </Typography>
+          <Typography
+            variant='h6'
+            sx={{
+              background: 'rgba( 255, 255, 255, 0.05 )',
+              border: '1px solid rgba( 255, 255, 255, 0.10 )',
+              backdropFilter: 'blur(5px)',
+              textAlign: 'center',
+              borderRadius: '1rem',
+              mb: 2,
+              padding: 1,
+              fontFamily: 'inherit',
+            }}
+          >
+            {params.market} : {params.symbol}
+          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 2,
+            }}
+          >
+            <Typography
+              variant='body2'
+              sx={{
+                background: 'rgba( 255, 255, 255, 0.03 )',
+                border: '1px solid rgba(255, 255, 255, 0.10)',
+                backdropFilter: 'blur(5px)',
+                textAlign: 'center',
+                borderRadius: '1rem',
+                padding: 1,
+                px: 2,
+                fontWeight: '600',
+                fontFamily: 'inherit',
+              }}
+            >
+              Today {new Date().toDateString()}
+            </Typography>
 
+            <Typography
+              variant='body2'
+              component='div'
+              sx={{
+                background: 'rgba( 255, 255, 255, 0.03 )',
+                border: '1px solid rgba(255, 255, 255, 0.10)',
+                backdropFilter: 'blur(5px)',
+                textAlign: 'center',
+                borderRadius: '1rem',
+                padding: 1,
+                px: 2,
+                fontWeight: '600',
+                fontFamily: 'inherit',
+              }}
+            >
+              <LiveTime />
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              background: 'rgba( 255, 255, 255, 0.03 )',
+              border: '1px solid rgba(255, 255, 255, 0.10)',
+              backdropFilter: 'blur(5px)',
+              borderRadius: '1rem',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Typography
+              sx={{
+                textTransform: 'capitalize',
+                fontFamily: 'inherit',
+                fontWeight: '600',
+              }}
+            >
+              Market
+            </Typography>
+            <Box
+              className={marketStatus === 'open' ? 'blob' : 'blob_closed'}
+            ></Box>
+            <Typography
+              sx={{
+                textTransform: 'capitalize',
+                fontFamily: 'inherit',
+                fontWeight: '600',
+              }}
+            >
+              {marketStatus && marketStatus}
+            </Typography>
+          </Box>
+        </Grid>
         <Box
           sx={{
-            background: '#1B2430',
+            background: '#2a2e39ff',
+            border: '1px solid rgba( 255, 255, 255, 0.10 )',
             backdropFilter: 'blur(5px)',
             borderRadius: '1rem',
             p: 2,
           }}
         >
           <Typography
-            variant='body1'
+            variant='body2'
             sx={{
-              backdropFilter: 'blur(5px)',
-              textAlign: 'center',
-              borderRadius: '2rem',
-              mb: 2,
-              padding: 1,
-              fontWeight: '600',
-              width: 'fit-content',
-            }}
-          >
-            Date: {new Date().toLocaleDateString()}
-          </Typography>
-
-          <Typography
-            variant='body1'
-            sx={{
+              background: 'rgba( 255, 255, 255, 0.03 )',
+              border: '1px solid rgba( 255, 255, 255, 0.10 )',
               textAlign: 'left',
-              borderRadius: '2rem',
-              mb: 2,
+              borderRadius: '1rem',
+              my: 2,
               padding: 1,
               fontWeight: '600',
             }}
@@ -384,10 +522,12 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
           </Typography>
 
           <Typography
-            variant='body1'
+            variant='body2'
             sx={{
+              background: 'rgba( 255, 255, 255, 0.03 )',
+              border: '1px solid rgba( 255, 255, 255, 0.10 )',
               textAlign: 'left',
-              borderRadius: '2rem',
+              borderRadius: '1rem',
               mb: 2,
               padding: 1,
               fontWeight: '600',
@@ -397,10 +537,12 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
           </Typography>
 
           <Typography
-            variant='body1'
+            variant='body2'
             sx={{
+              background: 'rgba( 255, 255, 255, 0.03 )',
+              border: '1px solid rgba( 255, 255, 255, 0.10 )',
               textAlign: 'left',
-              borderRadius: '2rem',
+              borderRadius: '1rem',
               mb: 2,
               padding: 1,
               fontWeight: '600',
@@ -414,14 +556,15 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
           </Typography>
 
           <Typography
-            variant='body1'
+            variant='body2'
             sx={{
+              background: 'rgba( 255, 255, 255, 0.03 )',
+              border: '1px solid rgba( 255, 255, 255, 0.10 )',
               textAlign: 'left',
-              borderRadius: '2rem',
+              borderRadius: '1rem',
               mb: 2,
               padding: 1,
               fontWeight: '600',
-              width: 'fit-content',
             }}
           >
             Percentage Change:{' '}

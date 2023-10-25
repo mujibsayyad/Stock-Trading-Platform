@@ -2,7 +2,7 @@
 import * as UpstoxClient from 'upstox-js-sdk';
 import fetchInstrumentDetails from './fetchInstrumentDetails';
 // import { redis } from '../lib/redis';
-import { WebSocket } from 'ws';
+import axios from 'axios';
 
 export const fetchUpstoxData = async (symbol: string): Promise<string> => {
   const instrument = await fetchInstrumentDetails(symbol);
@@ -43,68 +43,89 @@ export const fetchUpstoxData = async (symbol: string): Promise<string> => {
   });
 };
 
-// import axios from 'axios';
+// Get Historical data by date
+interface marketPara {
+  symbol: string;
+  toDate: string;
+  fromDate: string;
+}
 
-// type StockDataResponse = {
-//   date: Date;
-//   open: number;
-//   high: number;
-//   low: number;
-//   close: number;
-//   volume: number;
-// }[];
-// type StockError = { error: string };
-// // const url = `http://api.marketstack.com/v1/intraday?access_key=${process.env.STOCK_API}&symbols=${symbol}`;
+export const getLastMarketData = async ({
+  symbol,
+  toDate,
+  fromDate,
+}: marketPara) => {
+  const instrument = await fetchInstrumentDetails(symbol);
+  if (!instrument) {
+    throw new Error('No instrument found for the given symbol.');
+  }
+  const instrumentKey = instrument.instrument_key;
+  const apiInstance = new UpstoxClient.HistoryApi();
+  const apiVersion = '2.0';
+  const interval = '30minute';
 
-// type FetchStockDataResult = StockDataResponse | StockError;
+  return new Promise((resolve, reject) => {
+    apiInstance.getHistoricalCandleData1(
+      instrumentKey,
+      interval,
+      toDate,
+      fromDate,
+      apiVersion,
+      // @ts-ignore
+      (error, data, response) => {
+        if (error) {
+          console.error(error);
+          reject(error);
+        } else {
+          console.log('getHistoricalCandleData: ' + data);
+          resolve(data);
+        }
+      }
+    );
+  });
+};
 
-// const fetchStockData = async (
-//   market: string,
-//   symbol: string
-// ): Promise<FetchStockDataResult> => {
-//   const INTERVAL = 1;
+// Get market status open / close
+export const getMarketStatus = async (): Promise<string | undefined> => {
+  try {
+    const url = `https://www.alphavantage.co/query?function=MARKET_STATUS&apikey=demo`;
+    const res = await axios.get(url);
 
-//   // Adjust the symbol based on market
-//   const adjustedSymbol = market === 'BSE' ? `${symbol}.${market}` : symbol;
+    const indiaMarketStatus = res.data.markets.filter(
+      (market: any) => market.region === 'India'
+    );
 
-//   const cacheStockData = await redis.get('stockData');
-//   if (cacheStockData) {
-//     console.log('🚀 serving cacheStockData:');
-//     return JSON.parse(cacheStockData);
-//   }
+    if (!indiaMarketStatus.length) {
+      return 'Market Not Found';
+    }
 
-//   const url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${adjustedSymbol}&interval=${INTERVAL}&apikey=${process.env.STOCK_API}`;
+    return indiaMarketStatus[0].current_status;
+  } catch (error) {
+    console.log('🚀 getMarketStatus ~ error:', error);
+    return;
+  }
+};
 
-//   try {
-//     const response = await axios.get(url);
-//     const resData = response.data;
+// Get day to check it's not holiday
+export const isWeekend = (date: Date) => {
+  const day = date.getDay();
+  // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  return day === 0 || day === 6;
+};
 
-//     if (!resData || !resData['Time Series (1)']) {
-//       console.log('🚀 stockData:error', resData);
-//       return { error: 'No data found' };
-//     }
+// Format to full date (YYYY-MM-DD / 2022-10-01)
+export const formatDate = (date: Date): string => {
+  let dd: string | number = date.getDate();
+  let mm: string | number = date.getMonth() + 1; // January is 0!
+  const yyyy: number = date.getFullYear();
 
-//     console.log('🚀 I hitted real api 🚀');
+  if (dd < 10) {
+    dd = '0' + dd;
+  }
 
-//     const rawData = resData['Time Series (1)'];
+  if (mm < 10) {
+    mm = '0' + mm;
+  }
 
-//     const transformedData = Object.keys(rawData).map((date) => ({
-//       date: new Date(date),
-//       open: +rawData[date]['1. open'],
-//       high: +rawData[date]['2. high'],
-//       low: +rawData[date]['3. low'],
-//       close: +rawData[date]['4. close'],
-//       volume: +rawData[date]['5. volume'],
-//     }));
-
-//     await redis.set('stockData', JSON.stringify(transformedData));
-//     await redis.expire('stockData', 300);
-
-//     return transformedData;
-//   } catch (error) {
-//     console.error('Error fetching data:', error);
-//     throw error;
-//   }
-// };
-
-// export default fetchStockData;
+  return `${yyyy}-${mm}-${dd}`;
+};
