@@ -10,6 +10,8 @@ function getFormattedServerTime() {
     minute: '2-digit',
     second: '2-digit',
     hour12: true,
+    timeZone: 'Asia/Kolkata',
+    timeZoneName: 'short',
   };
   return new Date().toLocaleString('en-US', options);
 }

@@ -1,6 +1,7 @@
 // @ts-ignore
 import * as UpstoxClient from 'upstox-js-sdk';
 import fetchInstrumentDetails from './fetchInstrumentDetails';
+import { utcToZonedTime, format } from 'date-fns-tz';
 // import { redis } from '../lib/redis';
 import axios from 'axios';
 
@@ -98,11 +99,20 @@ export const getMarketStatus = async (): Promise<string | undefined> => {
       return 'Market Not Found';
     }
 
+    // Market status open / close
     let status = indiaMarketStatus[0].current_status;
+
+    // Convert current UTC time to IST
+    const istTimeZone = 'Asia/Kolkata';
+    const nowInIST = utcToZonedTime(new Date(), istTimeZone);
+
+    const formattedTime = format(nowInIST, 'yyyy-MM-dd HH:mm:ss', {
+      timeZone: istTimeZone,
+    });
 
     // Extending 15 min extra
     if (status === 'closed') {
-      const currentTime = new Date();
+      const currentTime = new Date(formattedTime);
       const closingTime = new Date();
       closingTime.setHours(15, 30, 0); // 3:30 pm IST
 
