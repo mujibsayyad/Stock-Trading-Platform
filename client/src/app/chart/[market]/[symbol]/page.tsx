@@ -18,13 +18,12 @@ import WithAuth, { WithAuthProps } from '@/app/middleware/WithAuth';
 const DEFAULT_COLOR = '#b2b5be';
 const GREEN = '#089981';
 const RED = '#F23645';
-const BLACK = 'b2b5be';
 
 // * Determines the color of a candle based on its open and close values.
 const determineColor = (open: number, close: number) => {
   if (close > open) return GREEN;
   if (close < open) return RED;
-  return BLACK;
+  return DEFAULT_COLOR;
 };
 
 // * Transforms API response data to a series suitable for chart rendering.
@@ -90,9 +89,9 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hoverColor, setHoverColor] = useState<string>(DEFAULT_COLOR);
   const [prevClose, setPrevClose] = useState<number>(0);
-  const [marketStatus, setMarketStatus] = useState<string>('closed');
 
   const chartContainerRef = useRef(null);
+  const marketStatus: any = useRef();
   const params = useParams();
   const pathname = usePathname();
 
@@ -124,7 +123,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
 
   useEffect(() => {
     if (data && data.marketStatus) {
-      setMarketStatus(data.marketStatus);
+      marketStatus.current = data.marketStatus;
     }
 
     if (chartContainerRef.current && !chart) {
@@ -156,7 +155,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         tickMarkFormatter: (time: number) => {
           const date = new Date(time * 1000);
           const monthName = monthNames[date.getMonth()];
-          if (marketStatus === 'closed') {
+          if (marketStatus.current === 'closed') {
             // If the market is closed or the status is null, display the date
             return `${date.getDate().toString().padStart(2, '0')} ${monthName}`;
           } else {
@@ -208,7 +207,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         } else if (latestDataPoint.close < latestDataPoint.open) {
           setColor(RED); // Red for price down
         } else {
-          setColor(BLACK); // Default for unchanged
+          setColor(DEFAULT_COLOR); // Default for unchanged
         }
       }
 
@@ -225,7 +224,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
       chart?.timeScale().fitContent();
     }
 
-    if (marketStatus !== null && marketStatus !== 'closed') {
+    if (data?.marketStatus !== null && data?.marketStatus !== 'closed') {
       socket.emit('selectSymbol', params.symbol);
 
       socket.on('symbolData', (newData) => {
@@ -276,7 +275,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
             } else if (oneMinDataPoint.close < oneMinDataPoint.open) {
               setColor(RED); // Red for price down
             } else {
-              setColor(BLACK);
+              setColor(DEFAULT_COLOR);
             }
           }
         }
@@ -295,7 +294,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         chart.unsubscribeCrosshairMove(updateOHLCData);
       }
     };
-  }, [data, chart, series, marketStatus]);
+  }, [data, chart, series]);
 
   // *****************************************************************************
 
@@ -386,28 +385,34 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
           </Box>
         </Box>
       </Grid>
-      
+
       <Grid
         item
         style={{ flexGrow: 1 }}
         sx={{
           mx: 2,
-          my: 2.5,
+          my: {
+            xs: 2,
+            sm: 0,
+          },
           backdropFilter: 'blur(0.5rem)',
           transition: 'backgroundColor 0.5s',
           borderRadius: '1rem',
-          background: '#121010',
           height: 'fit-content',
+          order: {
+            xs: 2,
+            sm: 1,
+          },
         }}
       >
         <Grid
           item
           sx={{
-            background: '#2a2e39ff',
+            backgroundColor: 'rgb(21, 25, 36, 0.8)',
             border: '1px solid rgba( 255, 255, 255, 0.10 )',
             backdropFilter: 'blur(5px)',
             borderRadius: '1rem',
-            p: 2,
+            p: 3.5,
             mb: 2,
           }}
         >
@@ -502,7 +507,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
               Market
             </Typography>
             <Box
-              className={marketStatus === 'open' ? 'blob' : 'blob_closed'}
+              className={data?.marketStatus === 'open' ? 'blob' : 'blob_closed'}
             ></Box>
             <Typography
               sx={{
@@ -515,17 +520,17 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
                 },
               }}
             >
-              {marketStatus && marketStatus}
+              {data && data?.marketStatus}
             </Typography>
           </Box>
         </Grid>
         <Box
           sx={{
-            background: '#2a2e39ff',
+            backgroundColor: 'rgb(21, 25, 36, 0.8)',
             border: '1px solid rgba( 255, 255, 255, 0.10 )',
             backdropFilter: 'blur(5px)',
             borderRadius: '1rem',
-            p: 2,
+            p: 3.5,
           }}
         >
           <Typography
@@ -596,6 +601,128 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
             </span>
           </Typography>
         </Box>
+      </Grid>
+
+      <Grid
+        item
+        sm={12}
+        xs={12}
+        sx={{
+          backgroundColor: 'rgb(21, 25, 36, 0.8)',
+          borderRadius: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: {
+            xs: 'center',
+            sm: 'flex-start',
+          },
+          mt: {
+            xs: 2,
+            sm: 1,
+          },
+          p: 1.5,
+          order: {
+            xs: 1,
+            sm: 2,
+          },
+        }}
+      >
+        <Typography
+          variant='body2'
+          sx={{
+            background: 'rgba( 255, 255, 255, 0.08 )',
+            border: '1px solid rgba( 255, 255, 255, 0.10 )',
+            borderRadius: '1rem',
+            textAlign: 'left',
+            fontWeight: '600',
+            p: 1,
+            px: 2,
+            mx: 1,
+            cursor: 'pointer',
+            '&:hover': {
+              background: 'rgba(144, 202, 249, 0.15)',
+            },
+          }}
+        >
+          7 D
+        </Typography>
+
+        <Typography
+          variant='body2'
+          sx={{
+            background: 'rgba( 255, 255, 255, 0.08 )',
+            border: '1px solid rgba( 255, 255, 255, 0.10 )',
+            borderRadius: '1rem',
+            textAlign: 'left',
+            fontWeight: '600',
+            p: 1,
+            px: 2,
+            mx: 1,
+            cursor: 'pointer',
+            '&:hover': {
+              background: 'rgba(144, 202, 249, 0.15)',
+            },
+          }}
+        >
+          10 D
+        </Typography>
+        <Typography
+          variant='body2'
+          sx={{
+            background: 'rgba( 255, 255, 255, 0.08 )',
+            border: '1px solid rgba( 255, 255, 255, 0.10 )',
+            borderRadius: '1rem',
+            textAlign: 'left',
+            fontWeight: '600',
+            p: 1,
+            px: 2,
+            mx: 1,
+            cursor: 'pointer',
+            '&:hover': {
+              background: 'rgba(144, 202, 249, 0.15)',
+            },
+          }}
+        >
+          15 D
+        </Typography>
+        <Typography
+          variant='body2'
+          sx={{
+            background: 'rgba( 255, 255, 255, 0.08 )',
+            border: '1px solid rgba( 255, 255, 255, 0.10 )',
+            borderRadius: '1rem',
+            textAlign: 'left',
+            fontWeight: '600',
+            p: 1,
+            px: 2,
+            mx: 1,
+            cursor: 'pointer',
+            '&:hover': {
+              background: 'rgba(144, 202, 249, 0.15)',
+            },
+          }}
+        >
+          20 D
+        </Typography>
+        <Typography
+          variant='body2'
+          sx={{
+            background: 'rgba( 255, 255, 255, 0.08 )',
+            border: '1px solid rgba( 255, 255, 255, 0.10 )',
+            borderRadius: '1rem',
+            textAlign: 'left',
+            fontWeight: '600',
+            p: 1,
+            px: 2,
+            mx: 1,
+            cursor: 'pointer',
+            '&:hover': {
+              background: 'rgba(144, 202, 249, 0.15)',
+            },
+          }}
+        >
+          30 D
+        </Typography>
       </Grid>
     </Grid>
   );
