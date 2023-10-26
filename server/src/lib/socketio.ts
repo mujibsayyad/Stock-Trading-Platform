@@ -24,8 +24,12 @@ const getMarketFeedUrl = async () => {
       apiVersion,
       // @ts-ignore
       (error, data, response) => {
-        if (error) reject(error);
-        else resolve(data.data.authorizedRedirectUri);
+        if (error) {
+          console.log('🚀 Upstox user', error.response.res.statusMessage);
+          reject(error.response.res.statusMessage);
+        } else {
+          resolve(data.data.authorizedRedirectUri);
+        }
       }
     );
   });

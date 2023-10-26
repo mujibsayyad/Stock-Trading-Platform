@@ -77,7 +77,6 @@ export const getLastMarketData = async ({
           console.error(error);
           reject(error);
         } else {
-          console.log('getHistoricalCandleData: ' + data);
           resolve(data);
         }
       }
