@@ -14,72 +14,19 @@ import LiveTime from '@/app/components/LiveTime';
 import { socket } from '@/app/middleware/socket';
 import { useGetStockDataQuery } from '@/lib/redux/api/stockApi';
 import WithAuth, { WithAuthProps } from '@/app/middleware/WithAuth';
+import SelectStockDay from '@/app/components/jsx_hooks/SelectStockDay';
+import {
+  RED,
+  GREEN,
+  ohlcObj,
+  monthNames,
+  DEFAULT_COLOR,
+  determineColor,
+  transformDataToSeries,
+  transformSingleDataToPoint,
+} from '@/app/components/jsx_hooks/ChartPage';
 
-const DEFAULT_COLOR = '#b2b5be';
-const GREEN = '#089981';
-const RED = '#F23645';
-
-// * Determines the color of a candle based on its open and close values.
-const determineColor = (open: number, close: number) => {
-  if (close > open) return GREEN;
-  if (close < open) return RED;
-  return DEFAULT_COLOR;
-};
-
-// * Transforms API response data to a series suitable for chart rendering.
-const transformDataToSeries = (response: any) =>
-  response.data.candles.map((item: any) => ({
-    time: new Date(item[0]).getTime() / 1000,
-    open: item[1],
-    high: item[2],
-    low: item[3],
-    close: item[4],
-  }));
-
-// * Transforms a single data point to the format suitable for chart update.
-const transformSingleDataToPoint = (dataPoint: any) => {
-  if (
-    !dataPoint.ts ||
-    dataPoint.open === null ||
-    dataPoint.high === null ||
-    dataPoint.low === null ||
-    dataPoint.close === null
-  ) {
-    console.error('transformSingleDataToPoint Invalid data point:', dataPoint);
-    return null;
-  }
-
-  return {
-    time: new Date(parseInt(dataPoint.ts)).getTime() / 1000,
-    open: dataPoint.open,
-    high: dataPoint.high,
-    low: dataPoint.low,
-    close: dataPoint.close,
-  };
-};
-
-const ohlcObj = {
-  open: 0,
-  high: 0,
-  low: 0,
-  close: 0,
-};
-
-const monthNames = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
+//* ************************ ************************ *//
 const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [chart, setChart] = useState<IChartApi | null>(null);
   const [series, setSeries] = useState<ISeriesApi<'Candlestick'> | null>(null);
@@ -90,6 +37,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [hoverColor, setHoverColor] = useState<string>(DEFAULT_COLOR);
   const [prevClose, setPrevClose] = useState<number>(0);
   const [dummyRender, setDummyRender] = useState<number>(0);
+  const [selectedDay, setSelectedDay] = useState<string>('7');
 
   const chartContainerRef = useRef(null);
   const marketStatus: any = useRef();
@@ -328,6 +276,10 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
       marketStatus.current = 'closed';
       setDummyRender((prev) => prev + 1);
     }
+  };
+
+  const handleDayChange = (day: string) => {
+    setSelectedDay(day);
   };
 
   return (
@@ -613,127 +565,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         </Box>
       </Grid>
 
-      <Grid
-        item
-        sm={12}
-        xs={12}
-        sx={{
-          backgroundColor: 'rgb(21, 25, 36, 0.8)',
-          borderRadius: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: {
-            xs: 'center',
-            sm: 'flex-start',
-          },
-          mt: {
-            xs: 2,
-            sm: 1,
-          },
-          p: 1.5,
-          order: {
-            xs: 1,
-            sm: 2,
-          },
-        }}
-      >
-        <Typography
-          variant='body2'
-          sx={{
-            background: 'rgba( 255, 255, 255, 0.08 )',
-            border: '1px solid rgba( 255, 255, 255, 0.10 )',
-            borderRadius: '1rem',
-            textAlign: 'left',
-            fontWeight: '600',
-            p: 1,
-            px: 2,
-            mx: 1,
-            cursor: 'pointer',
-            '&:hover': {
-              background: 'rgba(144, 202, 249, 0.15)',
-            },
-          }}
-        >
-          7 D
-        </Typography>
-
-        <Typography
-          variant='body2'
-          sx={{
-            background: 'rgba( 255, 255, 255, 0.08 )',
-            border: '1px solid rgba( 255, 255, 255, 0.10 )',
-            borderRadius: '1rem',
-            textAlign: 'left',
-            fontWeight: '600',
-            p: 1,
-            px: 2,
-            mx: 1,
-            cursor: 'pointer',
-            '&:hover': {
-              background: 'rgba(144, 202, 249, 0.15)',
-            },
-          }}
-        >
-          10 D
-        </Typography>
-        <Typography
-          variant='body2'
-          sx={{
-            background: 'rgba( 255, 255, 255, 0.08 )',
-            border: '1px solid rgba( 255, 255, 255, 0.10 )',
-            borderRadius: '1rem',
-            textAlign: 'left',
-            fontWeight: '600',
-            p: 1,
-            px: 2,
-            mx: 1,
-            cursor: 'pointer',
-            '&:hover': {
-              background: 'rgba(144, 202, 249, 0.15)',
-            },
-          }}
-        >
-          15 D
-        </Typography>
-        <Typography
-          variant='body2'
-          sx={{
-            background: 'rgba( 255, 255, 255, 0.08 )',
-            border: '1px solid rgba( 255, 255, 255, 0.10 )',
-            borderRadius: '1rem',
-            textAlign: 'left',
-            fontWeight: '600',
-            p: 1,
-            px: 2,
-            mx: 1,
-            cursor: 'pointer',
-            '&:hover': {
-              background: 'rgba(144, 202, 249, 0.15)',
-            },
-          }}
-        >
-          20 D
-        </Typography>
-        <Typography
-          variant='body2'
-          sx={{
-            background: 'rgba( 255, 255, 255, 0.08 )',
-            border: '1px solid rgba( 255, 255, 255, 0.10 )',
-            borderRadius: '1rem',
-            textAlign: 'left',
-            fontWeight: '600',
-            p: 1,
-            px: 2,
-            mx: 1,
-            cursor: 'pointer',
-            '&:hover': {
-              background: 'rgba(144, 202, 249, 0.15)',
-            },
-          }}
-        >
-          30 D
-        </Typography>
-      </Grid>
+      <SelectStockDay onDaySelect={handleDayChange} />
     </Grid>
   );
 };
