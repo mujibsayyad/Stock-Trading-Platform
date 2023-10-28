@@ -44,15 +44,33 @@ const LiveTime: FC<LiveTimeProps> = ({ onMarketStatus }) => {
   }, [onMarketStatus]);
 
   // Get the 12hr time
-  const formattedTime = currentTime.toLocaleTimeString('en-US', {
-    timeZone: 'Asia/Kolkata',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true,
-  });
 
-  return <div style={{ width: 'fit-content' }}>{formattedTime}</div>;
+  // Get the time without AM/PM
+  const formattedTime = currentTime
+    .toLocaleTimeString('en-US', {
+      timeZone: 'Asia/Kolkata',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    })
+    .slice(0, -2);
+
+  // Extract the AM/PM part
+  const amPm = currentTime
+    .toLocaleTimeString('en-US', {
+      hour12: true,
+    })
+    .slice(-2);
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ width: '5rem', letterSpacing: '0.5px' }}>
+        {formattedTime}
+      </div>
+      <div>{amPm}</div>
+    </div>
+  );
 };
 
 export default LiveTime;
