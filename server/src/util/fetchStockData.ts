@@ -110,9 +110,15 @@ export const getMarketStatus = async (): Promise<string | undefined> => {
       timeZone: istTimeZone,
     });
 
-    // Extending 15 min extra
+    const currentTime = new Date(formattedTime);
+
+    // If today is a weekend, return 'closed'
+    if (isWeekend(currentTime)) {
+      return 'closed';
+    }
+
+    // Extending extra time, due to mismatch closing time with alphavantage api
     if (status === 'closed') {
-      const currentTime = new Date(formattedTime);
       const closingTime = new Date();
       closingTime.setHours(15, 30, 0); // 3:30 pm IST
 

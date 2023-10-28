@@ -5,10 +5,10 @@ import pingRoute from './ping';
 
 const router = Router();
 
+router.use('/', pingRoute);
+
 router.use('/', authRoutes);
 
 router.use('/', profileRoutes);
-
-router.use('/', pingRoute);
 
 export default router;

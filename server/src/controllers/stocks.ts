@@ -3,7 +3,6 @@ import path from 'path';
 import csv from 'csv-parser';
 import { Request, Response } from 'express';
 import {
-  isWeekend,
   formatDate,
   fetchUpstoxData,
   getMarketStatus,
@@ -17,7 +16,7 @@ export const stockData = async (req: Request, res: Response) => {
     // Get market status open / close
     const marketStatus = await getMarketStatus();
 
-    if (marketStatus === 'closed' || isWeekend(new Date())) {
+    if (marketStatus === 'closed') {
       const today = new Date();
       const sevenDaysAgo = new Date(today);
 

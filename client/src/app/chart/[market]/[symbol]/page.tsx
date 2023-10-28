@@ -10,7 +10,7 @@ import {
 import { Box, Typography, Grid } from '@mui/material';
 
 //* ************** Custom imports *************** *//
-import LiveTime from '@/app/hooks/LiveTime';
+import LiveTime from '@/app/components/LiveTime';
 import { socket } from '@/app/middleware/socket';
 import { useGetStockDataQuery } from '@/lib/redux/api/stockApi';
 import WithAuth, { WithAuthProps } from '@/app/middleware/WithAuth';
@@ -89,6 +89,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hoverColor, setHoverColor] = useState<string>(DEFAULT_COLOR);
   const [prevClose, setPrevClose] = useState<number>(0);
+  const [dummyRender, setDummyRender] = useState<number>(0);
 
   const chartContainerRef = useRef(null);
   const marketStatus: any = useRef();
@@ -322,6 +323,13 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
 
   if (!isAuthenticated) return null;
 
+  const handleMarketStatusChange = (status: string) => {
+    if (status === 'closed') {
+      marketStatus.current = 'closed';
+      setDummyRender((prev) => prev + 1);
+    }
+  };
+
   return (
     <Grid container sx={{ mt: 8 }}>
       <Grid item xs={12} sm={8} sx={{ ml: 0.2 }}>
@@ -479,7 +487,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
                 },
               }}
             >
-              <LiveTime />
+              <LiveTime onMarketStatus={handleMarketStatusChange} />
             </Typography>
           </Box>
           <Box
@@ -507,7 +515,9 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
               Market
             </Typography>
             <Box
-              className={data?.marketStatus === 'open' ? 'blob' : 'blob_closed'}
+              className={
+                marketStatus.current === 'open' ? 'blob' : 'blob_closed'
+              }
             ></Box>
             <Typography
               sx={{
@@ -520,7 +530,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
                 },
               }}
             >
-              {data && data?.marketStatus}
+              {marketStatus.current}
             </Typography>
           </Box>
         </Grid>
