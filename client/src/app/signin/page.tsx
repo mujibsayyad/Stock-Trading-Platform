@@ -322,7 +322,7 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
                   cursor: 'pointer',
                 }}
               >
-                I forgot password or can't sign in
+                I forgot password or can&apos;t sign in
               </Typography>
               {showForgetPass && <ForgetPassword />}
             </Grid>
