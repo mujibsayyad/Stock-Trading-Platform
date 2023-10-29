@@ -19,6 +19,7 @@ import { Email, Password, ShowChart } from '@mui/icons-material';
 //* ************** Custom imports *************** *//
 import Loader from '../components/Loader';
 import GoogleLogin from '../components/GoogleLogin';
+import ForgetPassword from '../components/ForgetPassword';
 import { ReduxState } from '@/lib/redux/store';
 import { userLogin } from '@/lib/redux/slices/authSlice';
 import validateUserData from '../hooks/validation';
@@ -38,6 +39,7 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [password, setPassword] = useState<string>('');
   const [authError, setAuthError] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [showForgetPass, setShowForgetPass] = useState<boolean>(false);
   const [inputErrors, setInputErrors] = useState<customInputErrors>({});
 
   const router = useRouter();
@@ -82,6 +84,11 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // handle forget password pop up box
+  const handleForgetPass = () => {
+    setShowForgetPass((prev) => !prev);
   };
 
   return (
@@ -150,7 +157,7 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
             alignItems: 'center',
             backgroundColor: {
               sm: 'none',
-              md: 'rgba(144, 202, 249, 0.08);',
+              md: 'rgba(144, 202, 249, 0.08)',
             },
             overflow: {
               xs: 'hidden',
@@ -202,8 +209,7 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
                 backgroundImage:
                   'linear-gradient(90deg, rgba(233, 237, 241, 0) 35%, rgb(161, 165, 190))',
               }}
-            >
-            </Box>
+            ></Box>
             <Typography
               sx={{
                 display: 'flex',
@@ -302,8 +308,23 @@ const SignIn: FC<WithAuthProps> = ({ isAuthenticated }) => {
               </Grid>
             </Grid>
 
-            <Grid container justifyContent='center' item xs={8}>
-              <Link href='/'>{"I forgot password or can't sign in"}</Link>
+            <Grid
+              container
+              justifyContent='center'
+              item
+              xs={8}
+              onClick={handleForgetPass}
+            >
+              <Typography
+                variant='body1'
+                sx={{
+                  color: '#4fc3f7',
+                  cursor: 'pointer',
+                }}
+              >
+                I forgot password or can't sign in
+              </Typography>
+              {showForgetPass && <ForgetPassword />}
             </Grid>
 
             <Grid container justifyContent='center' item xs={8}>
