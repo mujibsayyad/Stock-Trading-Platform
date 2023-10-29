@@ -12,9 +12,12 @@ import { Box, Typography, Grid } from '@mui/material';
 //* ************** Custom imports *************** *//
 import LiveTime from '@/app/components/LiveTime';
 import { socket } from '@/app/middleware/socket';
-import { useGetStockDataQuery } from '@/lib/redux/api/stockApi';
 import WithAuth, { WithAuthProps } from '@/app/middleware/WithAuth';
 import SelectStockDay from '@/app/components/jsx_hooks/SelectStockDay';
+import {
+  useGetStockDataQuery,
+  useLazyGetOnSelecteStockDataQuery,
+} from '@/lib/redux/api/stockApi';
 import {
   RED,
   GREEN,
@@ -36,8 +39,12 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hoverColor, setHoverColor] = useState<string>(DEFAULT_COLOR);
   const [prevClose, setPrevClose] = useState<number>(0);
+  // Trigger re-render to update the market status using useRef
   const [dummyRender, setDummyRender] = useState<number>(0);
+  // Selected time frame for fetching historical data
   const [selectedDay, setSelectedDay] = useState<string>('7');
+  // Flag to determine if historical data option is selected
+  const [isDayHighlighted, setIsDayHighlighted] = useState<boolean>(false);
 
   const chartContainerRef = useRef(null);
   const marketStatus: any = useRef();
@@ -48,6 +55,10 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const { data } = useGetStockDataQuery(params, {
     skip: !isAuthenticated,
   });
+
+  // Get historical stock data by days
+  const [getHistoricalData, { data: HistoricalData }] =
+    useLazyGetOnSelecteStockDataQuery();
 
   const updateOHLCData: any = (param: any) => {
     if (param.seriesData && param.seriesData.has(series)) {
@@ -67,6 +78,28 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         setOhlc(latestOhlc);
         setIsHovered(false);
       }
+    }
+  };
+
+  const formatAndSetData = (dataToFormat: any, seriesToUpdate: any) => {
+    const formattedData = transformDataToSeries(dataToFormat).reverse();
+    seriesToUpdate.setData(formattedData);
+
+    const latestDataPoint = formattedData[formattedData.length - 1];
+    const secondLatestDataPoint = formattedData[formattedData.length - 2];
+
+    if (secondLatestDataPoint?.close) {
+      setPrevClose(secondLatestDataPoint?.close);
+    }
+
+    if (latestDataPoint) {
+      setLatestOhlc({
+        open: latestDataPoint.open,
+        high: latestDataPoint.high,
+        low: latestDataPoint.low,
+        close: latestDataPoint.close,
+      });
+      setColor(determineColor(latestDataPoint.open, latestDataPoint.close));
     }
   };
 
@@ -130,34 +163,13 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
       setSeries(newSeries);
     }
 
-    if (data && series) {
-      let formattedData = transformDataToSeries(data).reverse();
-      series.setData(formattedData);
-
-      // Get the last data point which will be the latest data
-      const latestDataPoint = formattedData[formattedData.length - 1];
-      const secondlatestDataPoint = formattedData[formattedData.length - 2];
-
-      if (secondlatestDataPoint?.close) {
-        setPrevClose(secondlatestDataPoint?.close);
-      }
-
-      if (latestDataPoint) {
-        setLatestOhlc({
-          open: latestDataPoint.open,
-          high: latestDataPoint.high,
-          low: latestDataPoint.low,
-          close: latestDataPoint.close,
-        });
-
-        // Set the color based on the latest data point
-        if (latestDataPoint.close > latestDataPoint.open) {
-          setColor(GREEN); // Green for price up
-        } else if (latestDataPoint.close < latestDataPoint.open) {
-          setColor(RED); // Red for price down
-        } else {
-          setColor(DEFAULT_COLOR); // Default for unchanged
-        }
+    if (series) {
+      // If historical data is selected to show, show selected days data
+      if (isDayHighlighted && HistoricalData) {
+        formatAndSetData(HistoricalData, series);
+      } else if (data) {
+        // If market is open show Real-Time data || if market is closed show default 7 days data
+        formatAndSetData(data, series);
       }
 
       // Subscribe to crosshair move to get the hovered candlestick data
@@ -243,7 +255,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         chart.unsubscribeCrosshairMove(updateOHLCData);
       }
     };
-  }, [data, chart, series]);
+  }, [data, chart, series, HistoricalData]);
 
   // *****************************************************************************
 
@@ -280,6 +292,12 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
 
   const handleDayChange = (day: string) => {
     setSelectedDay(day);
+    const symbol = params.symbol;
+    getHistoricalData({ symbol, day });
+  };
+
+  const handleActiveDay = (bool: boolean) => {
+    setIsDayHighlighted(bool);
   };
 
   return (
@@ -565,7 +583,10 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         </Box>
       </Grid>
 
-      <SelectStockDay onDaySelect={handleDayChange} />
+      <SelectStockDay
+        onDaySelect={handleDayChange}
+        onHighlighted={handleActiveDay}
+      />
     </Grid>
   );
 };
