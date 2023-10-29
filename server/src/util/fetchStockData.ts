@@ -63,7 +63,7 @@ export const getLastMarketData = async ({
   const instrumentKey = instrument.instrument_key;
   const apiInstance = new UpstoxClient.HistoryApi();
   const apiVersion = '2.0';
-  const interval = '30minute';
+  const interval = '1minute';
 
   return new Promise((resolve, reject) => {
     apiInstance.getHistoricalCandleData1(
