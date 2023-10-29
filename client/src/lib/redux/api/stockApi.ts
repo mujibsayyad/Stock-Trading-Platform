@@ -21,7 +21,17 @@ export const stockApi = createApi({
       }),
       providesTags: ['stocks'],
     }),
+    // get stock data
+    getOnSelecteStockData: builder.query({
+      query: ({symbol, day}) => ({
+        url: `/historical/${symbol}/${day}`,
+        method: 'GET',
+        credentials: 'include',
+      }),
+      providesTags: ['stocks'],
+    }),
   }),
 });
 
-export const { useGetStockDataQuery } = stockApi;
+export const { useGetStockDataQuery, useLazyGetOnSelecteStockDataQuery } =
+  stockApi;

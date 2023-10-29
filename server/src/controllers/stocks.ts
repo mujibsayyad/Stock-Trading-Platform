@@ -9,6 +9,33 @@ import {
   getLastMarketData,
 } from '../util/fetchStockData';
 
+export const HistoricalData = async (req: Request, res: Response) => {
+  try {
+    const day = req.params.day.slice(0, -1);
+    const symbol = req.params.symbol.toUpperCase();
+
+    const today = new Date();
+    const daysAgo = new Date(today);
+
+    // Subtract user selected days from today
+    daysAgo.setDate(today.getDate() - Number(day));
+
+    const fromDate = formatDate(daysAgo);
+    const toDate = formatDate(today);
+
+    // Fetch the data for the date range
+    const historyData: any = await getLastMarketData({
+      symbol,
+      toDate,
+      fromDate,
+    });
+    return res.status(200).json(historyData);
+  } catch (error) {
+    console.error('Internal server error:', error);
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
 export const stockData = async (req: Request, res: Response) => {
   try {
     const symbol = req.params.symbol.toUpperCase();

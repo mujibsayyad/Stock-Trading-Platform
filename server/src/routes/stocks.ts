@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import isAuthenticate from '../middlewares/isAuth';
-import { stockData, stockSearch } from '../controllers/stocks';
+import { stockData, stockSearch, HistoricalData } from '../controllers/stocks';
 
 const router = Router();
 
@@ -10,5 +10,6 @@ router.use(isAuthenticate);
 
 router.get('/intraday/:symbol', stockData);
 
+router.get('/historical/:symbol/:day', HistoricalData);
 
 export default router;
