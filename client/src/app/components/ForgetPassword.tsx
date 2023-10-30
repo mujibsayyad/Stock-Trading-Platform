@@ -68,7 +68,7 @@ const ForgetPassword: FC = () => {
           variant='body1'
           sx={{ fontWeight: 'bold', fontFamily: 'inherit' }}
         >
-          Relax and try to remember you password.
+          Relax and try to remember your password.
         </Typography>
         <Typography
           variant='body1'

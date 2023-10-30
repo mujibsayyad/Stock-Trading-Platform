@@ -18,23 +18,32 @@ const typographyStyles = {
   },
 };
 
-const getTypographyStyles = (isSelected: boolean) => ({
+const getTypographyStyles = (isSelected: boolean, isDisabled: boolean) => ({
   ...typographyStyles,
   background: isSelected
     ? 'rgba( 255, 255, 255, 0.20 )'
     : typographyStyles.background,
+  cursor: isDisabled ? 'not-allowed' : 'pointer',
+  opacity: isDisabled ? 0.5 : 1, // reduce opacity to indicate it's disabled
 });
 
 interface stockDaysProps {
   onDaySelect: (day: string) => void;
   onHighlighted: (bool: boolean) => void;
+  marketStatus: string;
 }
 
-const SelectStockDay: FC<stockDaysProps> = ({ onDaySelect, onHighlighted }) => {
+const SelectStockDay: FC<stockDaysProps> = ({
+  onDaySelect,
+  onHighlighted,
+  marketStatus,
+}) => {
   const [selectedDayStock, setSelectedDayStock] = useState<string>(
     DAY_OPTIONS[0]
   );
   const [highlighted, setHighlighted] = useState<boolean>(false);
+
+  console.log('🚀 SelectStockDay.tsx:45 ~ marketStatus:', marketStatus);
 
   const handleStockSelectDays = (event: MouseEvent<HTMLDivElement>) => {
     const selected = event.currentTarget.innerText.trim();
@@ -87,7 +96,9 @@ const SelectStockDay: FC<stockDaysProps> = ({ onDaySelect, onHighlighted }) => {
         }}
       >
         <Typography variant='body2' sx={typographyStyles}>
-          Showing Last {selectedDayStock.slice(0, -1)} Days Data
+          {marketStatus === 'open'
+            ? 'Showing Intraday Data'
+            : `Showing ${selectedDayStock.slice(0, -1)} Days Data`}
         </Typography>
       </Box>
 
@@ -96,8 +107,13 @@ const SelectStockDay: FC<stockDaysProps> = ({ onDaySelect, onHighlighted }) => {
           <Typography
             key={day}
             variant='body2'
-            sx={getTypographyStyles(day === selectedDayStock)}
-            onClick={handleStockSelectDays}
+            sx={getTypographyStyles(
+              day === selectedDayStock,
+              marketStatus !== 'closed'
+            )}
+            onClick={
+              marketStatus === 'closed' ? handleStockSelectDays : undefined
+            }
           >
             {day}
           </Typography>

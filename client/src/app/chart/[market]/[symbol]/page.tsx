@@ -586,6 +586,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
       <SelectStockDay
         onDaySelect={handleDayChange}
         onHighlighted={handleActiveDay}
+        marketStatus={marketStatus.current}
       />
     </Grid>
   );
