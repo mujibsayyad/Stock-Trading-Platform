@@ -43,8 +43,6 @@ const SelectStockDay: FC<stockDaysProps> = ({
   );
   const [highlighted, setHighlighted] = useState<boolean>(false);
 
-  console.log('🚀 SelectStockDay.tsx:45 ~ marketStatus:', marketStatus);
-
   const handleStockSelectDays = (event: MouseEvent<HTMLDivElement>) => {
     const selected = event.currentTarget.innerText.trim();
     setSelectedDayStock(selected);
