@@ -23,7 +23,10 @@ const Footer = () => {
       >
         <CandlestickChart
           sx={{
-            height: '2.5rem',
+            height: {
+              xs: '2rem',
+              sm: '2.5rem',
+            },
             width: '2.5rem',
           }}
         />
@@ -36,7 +39,14 @@ const Footer = () => {
         >
           <Typography
             variant='h6'
-            sx={{ fontFamily: 'inherit', fontWeight: '600' }}
+            sx={{
+              fontFamily: 'inherit',
+              fontWeight: '600',
+              fontSize: {
+                xs: '1rem',
+                sm: '1.25rem',
+              },
+            }}
           >
             TRADING VIEW
           </Typography>
@@ -50,14 +60,26 @@ const Footer = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           paddingTop: 2,
+          flexDirection: {
+            xs: 'column',
+            sm: 'row',
+          },
         }}
       >
-        <Box>
+        <Box
+
+        >
           <Typography
             variant='body2'
-            sx={{ fontFamily: 'inherit', fontWeight: '500' }}
+            sx={{
+              fontFamily: 'inherit',
+              fontWeight: '500',
+              pb: {
+                xs: 2,
+              },
+            }}
           >
-            © {new Date().getFullYear()}. All rights reserved
+            © {new Date().getFullYear()} Mujib Sayyad. All rights reserved
           </Typography>
         </Box>
 
