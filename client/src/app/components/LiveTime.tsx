@@ -1,49 +1,19 @@
-import { useState, useEffect, useRef, FC } from 'react';
+import { useState, useEffect, FC } from 'react';
 
-interface LiveTimeProps {
-  onMarketStatus: (status: string) => void;
-}
-
-const LiveTime: FC<LiveTimeProps> = ({ onMarketStatus }) => {
+const LiveTime: FC = () => {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
-  const previousMarketStatus = useRef<string | null>(null);
-
-  const checkMarketStatus: any = (date: Date) => {
-    const marketCloseHour = 15; // 3pm IST
-    const marketCloseMinutes = 30; // 30 minutes
-
-    if (
-      date.getHours() > marketCloseHour ||
-      (date.getHours() === marketCloseHour &&
-        date.getMinutes() >= marketCloseMinutes)
-    ) {
-      return 'closed';
-    }
-    return 'open';
-  };
 
   useEffect(() => {
     const intervalId = setInterval(() => {
       const newTime = new Date();
       setCurrentTime(newTime);
-
-      const status = checkMarketStatus(newTime);
-
-      // Check if the status has changed
-      if (previousMarketStatus.current !== status) {
-        onMarketStatus(status);
-        // Update the previous status ref
-        previousMarketStatus.current = status;
-      }
     }, 1000);
 
     // Clear the interval when the component is unmounted
     return () => {
       clearInterval(intervalId);
     };
-  }, [onMarketStatus]);
-
-  // Get the 12hr time
+  }, []);
 
   // Get the time without AM/PM
   const formattedTime = currentTime
