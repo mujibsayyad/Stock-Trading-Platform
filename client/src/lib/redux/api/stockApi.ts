@@ -5,12 +5,7 @@ export const stockApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api`,
   }),
-  // prepareHeaders: (headers, { getState }) => {
-  //   // If using Redux for storing the token
-  //   // const token = selectToken(getState());
-  //   return headers;
-  // },
-  tagTypes: ['stocks'],
+  tagTypes: ['stocks', 'history'],
   endpoints: (builder) => ({
     // get stock data
     getStockData: builder.query({
@@ -23,12 +18,12 @@ export const stockApi = createApi({
     }),
     // get stock data
     getOnSelecteStockData: builder.query({
-      query: ({symbol, day}) => ({
+      query: ({ symbol, day }) => ({
         url: `/historical/${symbol}/${day}`,
         method: 'GET',
         credentials: 'include',
       }),
-      providesTags: ['stocks'],
+      providesTags: ['history'],
     }),
   }),
 });
