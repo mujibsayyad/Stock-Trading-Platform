@@ -9,8 +9,63 @@ import {
   getLastMarketData,
 } from '../util/fetchStockData';
 
+// *****************************************************************
+// Get Stock Data | Real-Time
+// *****************************************************************
+export const stockData = async (req: Request, res: Response) => {
+  try {
+    const symbol = req.params.symbol.toUpperCase();
+    // Get market status open / close
+    const marketStatus = await getMarketStatus();
+    // Get data when market is open
+    const data: any = await fetchUpstoxData(symbol);
+
+    if (marketStatus === 'closed') {
+      //  If the market was open and closed on time, show the data of that day.
+      if (data?.status === 'success') {
+        return res
+          .status(200)
+          .json({ data: data.data, type: 'closed_intraday', marketStatus });
+      }
+      // Else market didn't open due to holiday or weekday, show last 7 days data.
+      else {
+        // Calculate the date range for the last 7 days
+        const today = new Date();
+        const sevenDaysAgo = new Date(today);
+
+        // Subtract 7 days from today
+        sevenDaysAgo.setDate(today.getDate() - 7);
+
+        const fromDate = formatDate(sevenDaysAgo);
+        const toDate = formatDate(today);
+
+        // Fetch historical data for the date range
+        const historyData: any = await getLastMarketData({
+          symbol,
+          toDate,
+          fromDate,
+        });
+        return res
+          .status(200)
+          .json({ data: historyData.data, type: 'historical', marketStatus });
+      }
+    } else {
+      return res
+        .status(200)
+        .json({ data: data.data, type: 'open_intraday', marketStatus });
+    }
+  } catch (error) {
+    console.error('Internal server error:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+// *****************************************************************
+// Get Historical Data By Date
+// *****************************************************************
 export const HistoricalData = async (req: Request, res: Response) => {
   try {
+    const marketStatus = await getMarketStatus();
     const day = req.params.day.slice(0, -1);
     const symbol = req.params.symbol.toUpperCase();
 
@@ -29,48 +84,18 @@ export const HistoricalData = async (req: Request, res: Response) => {
       toDate,
       fromDate,
     });
-    return res.status(200).json(historyData);
+    return res
+      .status(200)
+      .json({ data: historyData.data, type: 'historical', marketStatus });
   } catch (error) {
     console.error('Internal server error:', error);
     return res.status(500).json({ message: 'Internal server error.' });
   }
 };
 
-export const stockData = async (req: Request, res: Response) => {
-  try {
-    const symbol = req.params.symbol.toUpperCase();
-
-    // Get market status open / close
-    const marketStatus = await getMarketStatus();
-
-    if (marketStatus === 'closed') {
-      const today = new Date();
-      const sevenDaysAgo = new Date(today);
-
-      // Subtract 7 days from today
-      sevenDaysAgo.setDate(today.getDate() - 7);
-
-      const fromDate = formatDate(sevenDaysAgo);
-      const toDate = formatDate(today);
-
-      // Fetch the data for the date range
-      const historyData: any = await getLastMarketData({
-        symbol,
-        toDate,
-        fromDate,
-      });
-      return res.status(200).json({ data: historyData.data, marketStatus });
-    } else {
-      const data: any = await fetchUpstoxData(symbol);
-      return res.status(200).json({ data: data.data, marketStatus });
-    }
-  } catch (error) {
-    console.error('Internal server error:', error);
-    res.status(500).json({ message: 'Internal server error.' });
-  }
-};
-
-// Search stocks
+// *****************************************************************
+// Get Stock Search Data
+// *****************************************************************
 export const stockSearch = async (req: Request, res: Response) => {
   const { symbol } = req.query;
 

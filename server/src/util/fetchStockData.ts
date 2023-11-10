@@ -1,10 +1,14 @@
+import axios from 'axios';
 // @ts-ignore
 import * as UpstoxClient from 'upstox-js-sdk';
-import fetchInstrumentDetails from './fetchInstrumentDetails';
 import { utcToZonedTime, format } from 'date-fns-tz';
-// import { redis } from '../lib/redis';
-import axios from 'axios';
 
+// import { redis } from '../lib/redis';
+import fetchInstrumentDetails from './fetchInstrumentDetails';
+
+// *****************************************************************
+// Helper: Fetch UPSTOX Data | INTRADAY Data
+// *****************************************************************
 export const fetchUpstoxData = async (symbol: string): Promise<string> => {
   const instrument = await fetchInstrumentDetails(symbol);
   if (!instrument) {
@@ -44,7 +48,9 @@ export const fetchUpstoxData = async (symbol: string): Promise<string> => {
   });
 };
 
-// Get Historical data by date
+// *****************************************************************
+// Helper: Get Historical Data By Date
+// *****************************************************************
 interface marketPara {
   symbol: string;
   toDate: string;
@@ -85,7 +91,9 @@ export const getLastMarketData = async ({
   });
 };
 
-// Get market status open / close
+// *****************************************************************
+// Helper: Get Market Status Open / Close
+// *****************************************************************
 export const getMarketStatus = async (): Promise<string | undefined> => {
   try {
     const url = `https://www.alphavantage.co/query?function=MARKET_STATUS&apikey=demo`;
@@ -112,21 +120,27 @@ export const getMarketStatus = async (): Promise<string | undefined> => {
 
     const currentTime = new Date(formattedTime);
 
+    const marketOpenTime = new Date();
+    marketOpenTime.setHours(9, 15, 0); // 9:15 am IST
+
+    const marketCloseTime = new Date();
+    marketCloseTime.setHours(15, 30, 0); // 3:30 pm IST
+
     // If today is a weekend, return 'closed'
     if (isWeekend(currentTime)) {
       return 'closed';
     }
 
-    // Extending extra time, due to mismatch closing time with alphavantage api
-    if (status === 'closed') {
-      const closingTime = new Date();
-      closingTime.setHours(15, 30, 0); // 3:30 pm IST
-
-      // Extend the 'open' status till 3:30 pm
-      if (currentTime <= closingTime) {
-        status = 'open';
-      }
+    // If the initial status is 'closed' and the current time is within market hours,
+    // set status to 'open'
+    if (
+      status === 'closed' &&
+      currentTime >= marketOpenTime &&
+      currentTime <= marketCloseTime
+    ) {
+      status = 'open';
     }
+
     return status;
   } catch (error) {
     console.log('🚀 getMarketStatus ~ error:', error);
@@ -134,7 +148,9 @@ export const getMarketStatus = async (): Promise<string | undefined> => {
   }
 };
 
-// Get day to check it's not holiday
+// *****************************************************************
+// Helper: Check Is It Holiday/Weekday
+// *****************************************************************
 export const isWeekend = (date: Date) => {
   const day = date.getDay();
   // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
