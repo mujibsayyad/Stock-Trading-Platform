@@ -5,12 +5,14 @@ import {
   Store,
 } from '@reduxjs/toolkit';
 import authSlice from './slices/authSlice';
+import stockSlice from './slices/stockSlice';
 import { stockApi } from './api/stockApi';
 import { profileApi } from './api/profileApi';
 
 const store: Store = configureStore({
   reducer: {
     auth: authSlice.reducer,
+    stock: stockSlice.reducer,
     [stockApi.reducerPath]: stockApi.reducer,
     [profileApi.reducerPath]: profileApi.reducer,
   },
