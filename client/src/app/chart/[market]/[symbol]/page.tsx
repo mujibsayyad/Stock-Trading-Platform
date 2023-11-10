@@ -8,12 +8,15 @@ import {
   ISeriesApi,
 } from 'lightweight-charts';
 import { Box, Typography, Grid } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
 
 //* ************** Custom imports *************** *//
 import LiveTime from '@/app/components/LiveTime';
 import { socket } from '@/app/middleware/socket';
+import { ReduxDispatch, ReduxState } from '@/lib/redux/store';
+import { setMarketStatus, setDataType } from '@/lib/redux/slices/stockSlice';
 import WithAuth, { WithAuthProps } from '@/app/middleware/WithAuth';
-import SelectStockDay from '@/app/components/jsx_hooks/SelectStockDay';
+import SelectStockDay from './SelectStockDay';
 import {
   useGetStockDataQuery,
   useLazyGetOnSelecteStockDataQuery,
@@ -27,7 +30,7 @@ import {
   determineColor,
   transformDataToSeries,
   transformSingleDataToPoint,
-} from '@/app/components/jsx_hooks/ChartPage';
+} from './ChartPage';
 
 //* ************************ ************************ *//
 const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
@@ -39,25 +42,26 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hoverColor, setHoverColor] = useState<string>(DEFAULT_COLOR);
   const [prevClose, setPrevClose] = useState<number>(0);
-  // Trigger re-render to update the market status using useRef
-  const [dummyRender, setDummyRender] = useState<number>(0);
-  // Selected time frame for fetching historical data
-  const [selectedDay, setSelectedDay] = useState<string>('7');
   // Flag to determine if historical data option is selected
   const [isDayHighlighted, setIsDayHighlighted] = useState<boolean>(false);
 
   const chartContainerRef = useRef(null);
-  const marketStatus: any = useRef();
   const params = useParams();
   const pathname = usePathname();
 
   // Search stock by url params (rtk api)
-  const { data } = useGetStockDataQuery(params, {
+  const { data, refetch } = useGetStockDataQuery(params, {
     skip: !isAuthenticated,
   });
 
+  const dispatch = useDispatch<ReduxDispatch>();
+  const { marketStatus, dataType } = useSelector(
+    (state: ReduxState) => state.stock
+  );
+  console.log('🚀 marketStatus, dataType:', marketStatus, dataType);
+
   // Get historical stock data by days
-  const [getHistoricalData, { data: HistoricalData }] =
+  const [getHistoricalData, { data: historicalData }] =
     useLazyGetOnSelecteStockDataQuery();
 
   const updateOHLCData: any = (param: any) => {
@@ -104,8 +108,13 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   };
 
   useEffect(() => {
-    if (data && data.marketStatus) {
-      marketStatus.current = data.marketStatus;
+    if (data || historicalData) {
+      if (data.marketStatus && data.marketStatus !== marketStatus) {
+        dispatch(setMarketStatus(data.marketStatus));
+      }
+      if (data.type && data.type !== dataType) {
+        dispatch(setDataType(data.type));
+      }
     }
 
     if (chartContainerRef.current && !chart) {
@@ -137,10 +146,19 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         tickMarkFormatter: (time: number) => {
           const date = new Date(time * 1000);
           const monthName = monthNames[date.getMonth()];
-          if (marketStatus.current === 'closed') {
+          console.log('🚀 timeScale ~ dataType:', dataType);
+          console.log('🚀 timeScale ~ isDayHighlighted:', isDayHighlighted);
+
+          if (isDayHighlighted) {
+            console.log(
+              '🚀 ~ file: page.tsx:153 ~ newChart.timeScale ~ isDayHighlighted:',
+              isDayHighlighted
+            );
+            console.log('🚀 if ~ dataType:', dataType);
             // If the market is closed or the status is null, display the date
             return `${date.getDate().toString().padStart(2, '0')} ${monthName}`;
           } else {
+            console.log('🚀 else ~ dataType:', dataType);
             // Otherwise, display the time
             return `${date.getHours().toString().padStart(2, '0')}:${date
               .getMinutes()
@@ -165,8 +183,9 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
 
     if (series) {
       // If historical data is selected to show, show selected days data
-      if (isDayHighlighted && HistoricalData) {
-        formatAndSetData(HistoricalData, series);
+      if (isDayHighlighted && historicalData) {
+        console.log('🚀 184.useEffect ~ isDayHighlighted:', isDayHighlighted);
+        formatAndSetData(historicalData, series);
       } else if (data) {
         // If market is open show Real-Time data || if market is closed show default 7 days data
         formatAndSetData(data, series);
@@ -184,6 +203,10 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
 
       chart?.timeScale().fitContent();
     }
+
+    socket.on('marketStatusChange', (marketStatusChange) => {
+      refetch();
+    });
 
     if (data?.marketStatus !== null && data?.marketStatus !== 'closed') {
       socket.emit('selectSymbol', params.symbol);
@@ -255,7 +278,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         chart.unsubscribeCrosshairMove(updateOHLCData);
       }
     };
-  }, [data, chart, series, HistoricalData]);
+  }, [data, chart, series, historicalData, dataType, marketStatus]);
 
   // *****************************************************************************
 
@@ -283,20 +306,13 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
 
   if (!isAuthenticated) return null;
 
-  const handleMarketStatusChange = (status: string) => {
-    if (status === 'closed') {
-      marketStatus.current = 'closed';
-      setDummyRender((prev) => prev + 1);
-    }
-  };
-
   const handleDayChange = (day: string) => {
-    setSelectedDay(day);
     const symbol = params.symbol;
     getHistoricalData({ symbol, day });
   };
 
   const handleActiveDay = (bool: boolean) => {
+    console.log('🚀 handleActiveDay ~ bool:', bool);
     setIsDayHighlighted(bool);
   };
 
@@ -457,7 +473,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
                 },
               }}
             >
-              <LiveTime onMarketStatus={handleMarketStatusChange} />
+              <LiveTime />
             </Typography>
           </Box>
           <Box
@@ -485,9 +501,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
               Market
             </Typography>
             <Box
-              className={
-                marketStatus.current === 'open' ? 'blob' : 'blob_closed'
-              }
+              className={marketStatus === 'open' ? 'blob' : 'blob_closed'}
             ></Box>
             <Typography
               sx={{
@@ -500,7 +514,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
                 },
               }}
             >
-              {marketStatus.current}
+              {marketStatus}
             </Typography>
           </Box>
         </Grid>
@@ -586,7 +600,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
       <SelectStockDay
         onDaySelect={handleDayChange}
         onHighlighted={handleActiveDay}
-        marketStatus={marketStatus.current}
+        marketStatus={marketStatus}
       />
     </Grid>
   );

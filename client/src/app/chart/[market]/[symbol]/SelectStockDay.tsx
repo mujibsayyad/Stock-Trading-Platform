@@ -1,7 +1,7 @@
 import { useState, FC, MouseEvent } from 'react';
 import { Grid, Box, Typography } from '@mui/material';
 
-const DAY_OPTIONS = ['7 D', '10 D', '15 D', '20 D', '30 D'];
+const DAY_OPTIONS = ['7 D', '10 D', '20 D', '30 D'];
 
 const typographyStyles = {
   background: 'rgba( 255, 255, 255, 0.08 )',
@@ -24,7 +24,7 @@ const getTypographyStyles = (isSelected: boolean, isDisabled: boolean) => ({
     ? 'rgba( 255, 255, 255, 0.20 )'
     : typographyStyles.background,
   cursor: isDisabled ? 'not-allowed' : 'pointer',
-  opacity: isDisabled ? 0.5 : 1, // reduce opacity to indicate it's disabled
+  opacity: isDisabled ? 0.5 : 1,
 });
 
 interface stockDaysProps {
@@ -32,7 +32,7 @@ interface stockDaysProps {
   onHighlighted: (bool: boolean) => void;
   marketStatus: string;
 }
-
+//* ************************ ************************ *//
 const SelectStockDay: FC<stockDaysProps> = ({
   onDaySelect,
   onHighlighted,
@@ -47,7 +47,6 @@ const SelectStockDay: FC<stockDaysProps> = ({
     const selected = event.currentTarget.innerText.trim();
     setSelectedDayStock(selected);
     onDaySelect(selected);
-    setHighlighted(true);
     onHighlighted(true);
   };
 
@@ -96,7 +95,7 @@ const SelectStockDay: FC<stockDaysProps> = ({
         <Typography variant='body2' sx={typographyStyles}>
           {marketStatus === 'open'
             ? 'Showing Intraday Data'
-            : `Showing ${selectedDayStock.slice(0, -1)} Days Data`}
+            : `Showing Last ${selectedDayStock.slice(0, -1)} Days Data`}
         </Typography>
       </Box>
 
