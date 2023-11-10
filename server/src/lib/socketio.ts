@@ -1,10 +1,12 @@
 import { WebSocket } from 'ws';
 import { Server } from 'socket.io';
 import protobuf from 'protobufjs';
+import schedule from 'node-schedule';
 // @ts-ignore
 import * as UpstoxClient from 'upstox-js-sdk';
 import { getAccessToken } from '../util/tokenStore';
 import fetchInstrumentDetails from '../util/fetchInstrumentDetails';
+import { getMarketStatus } from '../util/fetchStockData';
 
 // Initialize global variables
 let protobufRoot: any = null;
@@ -93,6 +95,26 @@ const connectSocket = async (app: any) => {
 
   io.on('connection', (socket) => {
     let ws: any;
+
+    // Schedule a job to check the market status at 9:15 AM
+    schedule.scheduleJob(
+      { hour: 9, minute: 15, tz: 'Asia/Kolkata' },
+      async () => {
+        const marketStatus = await getMarketStatus();
+        // Emit the market status to the connected client
+        socket.emit('marketStatusChange', marketStatus);
+      }
+    );
+
+    // Schedule a job to check the market status at 3:30 PM
+    schedule.scheduleJob(
+      { hour: 12, minute: 25, tz: 'Asia/Kolkata' },
+      async () => {
+        const marketStatus = 'closed'; // Market is closed at 3:30 PM
+        // Emit the market status to the connected client
+        socket.emit('marketStatusChange', marketStatus);
+      }
+    );
 
     socket.on('selectSymbol', async (symbol: string) => {
       // console.log('socket requested data for:', symbol);
