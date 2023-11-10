@@ -53,12 +53,24 @@ a {
   margin-right: 2rem;
   font-weight: 600;
   letter-spacing: 0.1rem;
+  background: rgba(144, 202, 249, 0.2);
+  clip-path: polygon(0 0, 100% 2%, 90% 100%, 0% 100%);
+  padding: 0.3rem 1rem;
+  border-radius: 0.5rem;
+
+  border-bottom-right-radius: 4.5px;
+  border-top-right-radius: 10%;
+}
+
+.nav_link:hover {
+  background: rgba(144, 202, 249, 0.3);
 }
 
 @media (max-width: 600px) {
   .nav_link {
     margin-right: 1rem;
     font-weight: 500;
+    font-size: 0.8rem;
   }
 
   .nav_link:last-child {

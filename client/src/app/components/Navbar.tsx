@@ -89,7 +89,10 @@ const Navbar: FC = () => {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <CandlestickChart
                 sx={{
-                  height: '2.5rem',
+                  height: {
+                    xs: '2rem',
+                    sm: '2.5rem',
+                  },
                   width: '2.5rem',
                 }}
               />
@@ -106,6 +109,7 @@ const Navbar: FC = () => {
                   sx={{
                     fontWeight: '600',
                     fontSize: {
+                      xs: '0.8rem',
                       sm: '0.9rem',
                       md: '',
                     },
