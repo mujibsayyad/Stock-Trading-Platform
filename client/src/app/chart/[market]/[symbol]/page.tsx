@@ -58,7 +58,6 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const { marketStatus, dataType } = useSelector(
     (state: ReduxState) => state.stock
   );
-  console.log('🚀 marketStatus, dataType:', marketStatus, dataType);
 
   // Get historical stock data by days
   const [getHistoricalData, { data: historicalData }] =
@@ -146,19 +145,11 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         tickMarkFormatter: (time: number) => {
           const date = new Date(time * 1000);
           const monthName = monthNames[date.getMonth()];
-          console.log('🚀 timeScale ~ dataType:', dataType);
-          console.log('🚀 timeScale ~ isDayHighlighted:', isDayHighlighted);
 
           if (isDayHighlighted) {
-            console.log(
-              '🚀 ~ file: page.tsx:153 ~ newChart.timeScale ~ isDayHighlighted:',
-              isDayHighlighted
-            );
-            console.log('🚀 if ~ dataType:', dataType);
             // If the market is closed or the status is null, display the date
             return `${date.getDate().toString().padStart(2, '0')} ${monthName}`;
           } else {
-            console.log('🚀 else ~ dataType:', dataType);
             // Otherwise, display the time
             return `${date.getHours().toString().padStart(2, '0')}:${date
               .getMinutes()
@@ -184,7 +175,6 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
     if (series) {
       // If historical data is selected to show, show selected days data
       if (isDayHighlighted && historicalData) {
-        console.log('🚀 184.useEffect ~ isDayHighlighted:', isDayHighlighted);
         formatAndSetData(historicalData, series);
       } else if (data) {
         // If market is open show Real-Time data || if market is closed show default 7 days data
@@ -312,7 +302,6 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   };
 
   const handleActiveDay = (bool: boolean) => {
-    console.log('🚀 handleActiveDay ~ bool:', bool);
     setIsDayHighlighted(bool);
   };
 
