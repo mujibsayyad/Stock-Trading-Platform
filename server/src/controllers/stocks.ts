@@ -22,7 +22,7 @@ export const stockData = async (req: Request, res: Response) => {
 
     if (marketStatus === 'closed') {
       //  If the market was open and closed on time, show the data of that day.
-      if (data?.status === 'success') {
+      if (data?.data?.candles?.length > 0) {
         return res
           .status(200)
           .json({ data: data.data, type: 'closed_intraday', marketStatus });
