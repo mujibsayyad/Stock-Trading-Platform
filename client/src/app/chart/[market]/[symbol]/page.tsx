@@ -106,17 +106,11 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
     }
   };
 
-  useEffect(() => {
-    if (data || historicalData) {
-      if (data.marketStatus && data.marketStatus !== marketStatus) {
-        dispatch(setMarketStatus(data.marketStatus));
-      }
-      if (data.type && data.type !== dataType) {
-        dispatch(setDataType(data.type));
-      }
-    }
-
-    if (chartContainerRef.current && !chart) {
+  // Create new chart
+  const createNewChart = () => {
+    if (!chartContainerRef.current) return;
+    
+    if (!chart) {
       const newChart = createChart(chartContainerRef.current, {
         layout: {
           background: { type: ColorType.Solid, color: '#151924' },
@@ -146,11 +140,9 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
           const date = new Date(time * 1000);
           const monthName = monthNames[date.getMonth()];
 
-          if (isDayHighlighted) {
-            // If the market is closed or the status is null, display the date
+          if (dataType === 'historical' || isDayHighlighted) {
             return `${date.getDate().toString().padStart(2, '0')} ${monthName}`;
           } else {
-            // Otherwise, display the time
             return `${date.getHours().toString().padStart(2, '0')}:${date
               .getMinutes()
               .toString()
@@ -170,6 +162,38 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
 
       setChart(newChart);
       setSeries(newSeries);
+    } else {
+      chart.timeScale().applyOptions({
+        timeVisible: true,
+        secondsVisible: false,
+        barSpacing: 10,
+        tickMarkFormatter: (time: number) => {
+          const date = new Date(time * 1000);
+          const monthName = monthNames[date.getMonth()];
+
+          if (dataType === 'historical' || isDayHighlighted) {
+            return `${date.getDate().toString().padStart(2, '0')} ${monthName}`;
+          } else {
+            return `${date.getHours().toString().padStart(2, '0')}:${date
+              .getMinutes()
+              .toString()
+              .padStart(2, '0')}`;
+          }
+        },
+      });
+    }
+  };
+
+  useEffect(() => {
+    const newData = historicalData || data;
+
+    if (newData) {
+      if (newData.marketStatus && newData.marketStatus !== marketStatus) {
+        dispatch(setMarketStatus(newData.marketStatus));
+      }
+      if (newData.type && newData.type !== dataType) {
+        dispatch(setDataType(newData.type));
+      }
     }
 
     if (series) {
@@ -268,8 +292,13 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
         chart.unsubscribeCrosshairMove(updateOHLCData);
       }
     };
-  }, [data, chart, series, historicalData, dataType, marketStatus]);
+  }, [data, chart, series, historicalData]);
 
+  useEffect(() => {
+    if (dataType && marketStatus) {
+      createNewChart();
+    }
+  }, [dataType, marketStatus, dispatch]);
   // *****************************************************************************
 
   // Percentage change of current data
