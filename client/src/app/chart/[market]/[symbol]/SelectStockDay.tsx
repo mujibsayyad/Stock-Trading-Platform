@@ -31,17 +31,18 @@ interface stockDaysProps {
   onDaySelect: (day: string) => void;
   onHighlighted: (bool: boolean) => void;
   marketStatus: string;
+  dataType: string;
 }
 //* ************************ ************************ *//
 const SelectStockDay: FC<stockDaysProps> = ({
   onDaySelect,
   onHighlighted,
   marketStatus,
+  dataType,
 }) => {
   const [selectedDayStock, setSelectedDayStock] = useState<string>(
-    DAY_OPTIONS[0]
+    dataType === 'historical' ? DAY_OPTIONS[0] : ''
   );
-  const [highlighted, setHighlighted] = useState<boolean>(false);
 
   const handleStockSelectDays = (event: MouseEvent<HTMLDivElement>) => {
     const selected = event.currentTarget.innerText.trim();
@@ -93,7 +94,7 @@ const SelectStockDay: FC<stockDaysProps> = ({
         }}
       >
         <Typography variant='body2' sx={typographyStyles}>
-          {marketStatus === 'open'
+          {marketStatus === 'open' || dataType !== 'historical'
             ? 'Showing Intraday Data'
             : `Showing Last ${selectedDayStock.slice(0, -1)} Days Data`}
         </Typography>
