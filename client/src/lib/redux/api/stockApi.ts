@@ -12,7 +12,6 @@ export const stockApi = createApi({
       query: ({ market, symbol }) => ({
         url: `/intraday/${symbol}`,
         method: 'GET',
-        credentials: 'include',
       }),
       providesTags: ['stocks'],
     }),
@@ -21,7 +20,6 @@ export const stockApi = createApi({
       query: ({ symbol, day }) => ({
         url: `/historical/${symbol}/${day}`,
         method: 'GET',
-        credentials: 'include',
       }),
       providesTags: ['history'],
     }),

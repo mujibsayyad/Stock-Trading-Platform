@@ -32,30 +32,12 @@ const WithAuth = (
     useEffect(() => {
       getReq().then((data) => {
         dispatch(validateUser(data));
-
-        if (data?.isSignedIn) {
-          if (pathname.startsWith('/chart/')) {
-            // Connect the socket only for /chart page
-            socket.connect();
-          } else {
-            socket.disconnect();
-          }
-
-          if (isPublicPage) {
-            router.push('/');
-            socket.disconnect();
-          }
-        } else if (!isPublicPage) {
-          router.push('/signin');
-        }
         setLoading(false);
       });
 
       // Clean up by disconnecting the socket when the component unmounts
       return () => {
-        if (!pathname.startsWith('/chart/') || isPublicPage) {
-          socket.disconnect();
-        }
+        socket.disconnect();
       };
     }, [dispatch, isPublicPage, isSignedIn, router]);
 
