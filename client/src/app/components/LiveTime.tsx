@@ -35,7 +35,10 @@ const LiveTime: FC = () => {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
-      <div style={{ width: '5rem', letterSpacing: '0.5px' }}>
+      <div
+        style={{ width: '5rem', letterSpacing: '0.5px' }}
+        suppressHydrationWarning
+      >
         {formattedTime}
       </div>
       <div>{amPm}</div>
