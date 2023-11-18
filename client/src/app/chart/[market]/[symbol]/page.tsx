@@ -15,7 +15,6 @@ import LiveTime from '@/app/components/LiveTime';
 import { socket } from '@/app/middleware/socket';
 import { ReduxDispatch, ReduxState } from '@/lib/redux/store';
 import { setMarketStatus, setDataType } from '@/lib/redux/slices/stockSlice';
-import WithAuth, { WithAuthProps } from '@/app/middleware/WithAuth';
 import SelectStockDay from './SelectStockDay';
 import {
   useGetStockDataQuery,
@@ -33,7 +32,7 @@ import {
 } from './ChartPage';
 
 //* ************************ ************************ *//
-const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
+const StockData: FC = () => {
   const [chart, setChart] = useState<IChartApi | null>(null);
   const [series, setSeries] = useState<ISeriesApi<'Candlestick'> | null>(null);
   const [color, setColor] = useState<string>(DEFAULT_COLOR);
@@ -50,9 +49,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   const pathname = usePathname();
 
   // Search stock by url params (rtk api)
-  const { data, refetch } = useGetStockDataQuery(params, {
-    skip: !isAuthenticated,
-  });
+  const { data, refetch } = useGetStockDataQuery(params);
 
   const dispatch = useDispatch<ReduxDispatch>();
   const { marketStatus, dataType } = useSelector(
@@ -109,7 +106,7 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   // Create new chart
   const createNewChart = () => {
     if (!chartContainerRef.current) return;
-    
+
     if (!chart) {
       const newChart = createChart(chartContainerRef.current, {
         layout: {
@@ -218,6 +215,8 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
       chart?.timeScale().fitContent();
     }
 
+    // Handle Sokcet connect and real time data
+    socket.connect();
     socket.on('marketStatusChange', (marketStatusChange) => {
       refetch();
     });
@@ -281,15 +280,11 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
     }
 
     return () => {
-      if (!pathname.startsWith('/chart/')) {
-        console.log('chart cleanup socket ran');
-        socket.off('symbolData');
         socket.disconnect();
-      }
 
       // Cleanup: Unsubscribe from crosshair move when the component is unmounted
       if (chart) {
-        chart.unsubscribeCrosshairMove(updateOHLCData);
+        chart?.unsubscribeCrosshairMove(updateOHLCData);
       }
     };
   }, [data, chart, series, historicalData]);
@@ -322,8 +317,6 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
       document.title = 'Stock Trading Platform';
     };
   }, [percentageChangeValue]);
-
-  if (!isAuthenticated) return null;
 
   const handleDayChange = (day: string) => {
     const symbol = params.symbol;
@@ -625,4 +618,4 @@ const StockData: FC<WithAuthProps> = ({ isAuthenticated }) => {
   );
 };
 
-export default WithAuth(StockData) as FC;
+export default StockData as FC;
