@@ -19,6 +19,7 @@
     "@types/node": "20.4.9",
     "@types/react": "18.2.19",
     "@types/react-dom": "18.2.7",
+    "@vercel/analytics": "^1.1.1",
     "axios": "^1.4.0",
     "bufferutil": "^4.0.7",
     "eslint": "8.46.0",

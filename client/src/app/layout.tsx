@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/react';
 import { Inter } from 'next/font/google';
 import { Providers } from '@/lib/providers';
 import ThemeRegistry from './components/ThemeRegistry';
@@ -23,6 +24,7 @@ export default function RootLayout({
         <body className={inter.className}>
           <Navbar />
           <ThemeRegistry options={{ key: 'mui' }}>{children}</ThemeRegistry>
+          <Analytics />
         </body>
       </html>
     </Providers>
