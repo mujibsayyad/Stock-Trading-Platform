@@ -280,7 +280,7 @@ const StockData: FC = () => {
     }
 
     return () => {
-        socket.disconnect();
+      socket.disconnect();
 
       // Cleanup: Unsubscribe from crosshair move when the component is unmounted
       if (chart) {
