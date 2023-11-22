@@ -9,6 +9,7 @@ import { Container, Box, Typography, Button, Grid } from '@mui/material';
 
 //* ************** Custom imports *************** *//
 import Footer from './Footer';
+import VideoPlayer from './VideoPlayer';
 import DefaultStocks from './DefaultStocks';
 import HomeImg from '../../../public/homepage/hp1.jpg';
 import HomeSubImg from '../../../public/homepage/hp2.jpg';
@@ -185,6 +186,9 @@ const HomePage: FC = () => {
       >
         Where the world does markets
       </Typography>
+
+      {/* Video player  */}
+      <VideoPlayer />
 
       <Box
         mt={4}
