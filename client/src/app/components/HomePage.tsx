@@ -278,7 +278,7 @@ const HomePage: FC = () => {
             letterSpacing: '0.1rem',
           }}
         >
-          What We Offers ?
+          What We Offer ?
         </Typography>
 
         <Grid
