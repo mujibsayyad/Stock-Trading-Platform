@@ -108,7 +108,7 @@ const connectSocket = async (app: any) => {
 
     // Schedule a job to check the market status at 3:30 PM
     schedule.scheduleJob(
-      { hour: 12, minute: 25, tz: 'Asia/Kolkata' },
+      { hour: 15, minute: 30, tz: 'Asia/Kolkata' },
       async () => {
         const marketStatus = 'closed'; // Market is closed at 3:30 PM
         // Emit the market status to the connected client
