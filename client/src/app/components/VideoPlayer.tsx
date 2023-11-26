@@ -31,7 +31,7 @@ const VideoPlayer = () => {
         },
       }}
     >
-      <video preload='metadata' height='68%' controls>
+      <video preload='metadata' height='68%' autoPlay muted loop>
         <source src={STP} type='video/mp4' />
         Your browser does not support the video tag.
       </video>
